@@ -39,6 +39,8 @@
         while (node && node.nodeName.toUpperCase() !== 'A') node = node.parentNode;
         return node;
     }
+    onpopstate = (event) => navigate(event.target.location.pathname);
+
     async function navigate(href) {
         history.pushState({}, '', href);
         const [path, query] = href.split('?');
@@ -51,7 +53,7 @@
             context = code;
             component = module.default;
         } else {
-            const response = await API.get(`${path}/@basic`);
+            const response = await API.get(`${path}/@basic${!!query ? '?' + query : ''}`);
             const basicData = await response.json();
             if (basicData.type_name === 'Content') {
                 const module = await import(getRealPath(basicData.view));

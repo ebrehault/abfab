@@ -84,9 +84,9 @@ export const Content = {
         return API.post(getRealPath(path), body);
     },
     update: (path, data) => {
-        return API.patch(getRealPath(path), JSON.stringify(data));
+        return API.patch(getRealPath(path || location.pathname), JSON.stringify(data));
     },
     delete: (path) => {
-        return API.delete(getRealPath(path));
+        return API.delete(getRealPath(path || location.pathname));
     },
 };

@@ -107,7 +107,7 @@ def compile_svelte(path):
             compile_svelte(content_path)
     else:
         if path.endswith('.svelte'):
-            os.system('node compile.js {}'.format(path))
+            os.system('node utils/compile.js {}'.format(path))
 
 def delete_remote(path):
     requests.delete(get_url(path), auth=AUTH, verify=False)

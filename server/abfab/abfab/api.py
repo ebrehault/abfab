@@ -121,6 +121,8 @@ async def get_view_or_data(context, request):
 
 @configure.service(context=IAbFabEditable, method='GET', name='@edit',
                    permission='guillotina.Public', allow_access=True)
+@configure.service(context=IContainer, method='GET', name='@edit',
+                   permission='guillotina.Public', allow_access=True)
 async def run_editor(context, request):
     editor_view = await get_object_by_path('/abfab/editor/editor.svelte')
     return wrap_component(request, editor_view, './@edit-data', 'text')
@@ -171,14 +173,21 @@ async def get_tree(context, request, depth=3):
 @configure.service(context=IContent, method='GET', name='@edit-data',
                    permission='guillotina.Public', allow_access=True)
 async def get_content_basic(context, request):
+    view_name = request.query.get('view')
+    if not view_name and context.view:
+        view_path = context.view
+    else:
+        view_path = get_view_by_name(view_name or 'view', context)
     return {
         "type_name": context.type_name,
         "path": get_content_path(context),
-        "view": context.view,
+        "view": view_path,
         "data": context.data,
     }
 
 @configure.service(context=IDirectory, method='GET', name='@edit-data',
+                   permission='guillotina.Public', allow_access=True)
+@configure.service(context=IContainer, method='GET', name='@edit-data',
                    permission='guillotina.Public', allow_access=True)
 async def get_directory_edit_data(context, request):
     return {
