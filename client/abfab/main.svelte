@@ -63,9 +63,7 @@
                 const module = await import(getRealPath(basicData.path));
                 component = module.default;
                 const queryContext = (new URLSearchParams(query)).get('context');
-                if (queryContext) {
-                    context = JSON.parse(decodeURIComponent(queryContext));
-                }
+                context = queryContext ? JSON.parse(decodeURIComponent(queryContext)) : {};
             }   
         }
     }
