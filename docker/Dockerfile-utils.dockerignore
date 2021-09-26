@@ -1,0 +1,11 @@
+/node_modules
+package.json
+package-lock.json
+/libs
+*.pyc
+__pycache__
+*.egg-info
+.DS_Store
+g.db
+g.db.blobs
+*.svelte.js

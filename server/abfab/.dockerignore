@@ -1,0 +1,6 @@
+*.pyc
+__pycache__
+*.egg-info
+.DS_Store
+g.db
+g.db.blobs

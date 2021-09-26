@@ -4,8 +4,8 @@ import json
 import logging
 import argparse
 
-# GUILLOTINA_CONTAINER_ROOT = 'http://abfab:8080/db/app/'
-GUILLOTINA_CONTAINER_ROOT = 'http://localhost:8080/db/my-app/'
+GUILLOTINA_CONTAINER_ROOT = 'http://abfab:8080/db/app/'
+# GUILLOTINA_CONTAINER_ROOT = 'http://localhost:8080/db/my-app/'
 
 def get_url(path):
     return GUILLOTINA_CONTAINER_ROOT + path
