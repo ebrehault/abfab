@@ -187,13 +187,20 @@ async def get_content_basic(context, request):
 
 @configure.service(context=IDirectory, method='GET', name='@edit-data',
                    permission='guillotina.Public', allow_access=True)
-@configure.service(context=IContainer, method='GET', name='@edit-data',
-                   permission='guillotina.Public', allow_access=True)
 async def get_directory_edit_data(context, request):
     return {
         "type_name": context.type_name,
         "path": get_content_path(context),
         "data": context.data,
+    }
+
+@configure.service(context=IContainer, method='GET', name='@edit-data',
+                   permission='guillotina.Public', allow_access=True)
+async def get_directory_edit_data(context, request):
+    return {
+        "type_name": "Directory",
+        "path": "/",
+        "data": {},
     }
 
 @configure.service(context=IDirectory, method='GET', name='@basic',
