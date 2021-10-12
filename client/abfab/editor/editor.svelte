@@ -67,6 +67,7 @@
             try {
                 const result = compile(source, {
                     sveltePath: ABFAB_ROOT + '/libs/svelte',
+                    customElement: source.includes('<' + 'svelte:options tag='),
                 });
                 error = undefined;
                 js = result.js;

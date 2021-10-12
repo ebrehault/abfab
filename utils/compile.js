@@ -13,6 +13,7 @@ fs.readFile(source, 'utf8', (err, data) => {
     }
     const { js } = svelte.compile(data, {
         sveltePath: ABFAB_ROOT + '/libs/svelte',
+        customElement: data.includes('<svelte:options tag='),
     });
     if (js.code) {
         const code = js.code.replace(RE, 'from "$1/index.mjs";');
