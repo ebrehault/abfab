@@ -12,21 +12,24 @@ services:
         environment:
             POSTGRES_DB: guillotina
             POSTGRES_USER: guillotina
-            POSTGRES_PASSWORD: guillotina
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     abfab:
+        container_name: abfab
         build:
             context: ../server/abfab
             dockerfile: Dockerfile
-        command: sh -c "sleep 5 && guillotina"
+        command: sh -c 'sleep 5 && guillotina --override="root_user.password=${PASSWORD}" --override="databases.db.dsn=postgresql://guillotina:${POSTGRES_PASSWORD}@postgres:5432/guillotina"'
         ports:
             - 8080:8080
+        volumes:
+            - ./config.yaml:/app/config.yaml
         links:
             - postgres
     abfab-utils:
         build:
             context: ..
             dockerfile: docker/Dockerfile-utils
-        command: sh utils/init.sh
+        command: sh utils/init.sh abfab ${PASSWORD}
         links:
             - postgres
             - abfab

@@ -12,20 +12,18 @@ services:
         environment:
             POSTGRES_DB: guillotina
             POSTGRES_USER: guillotina
-            POSTGRES_PASSWORD: secret
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     abfab:
         image: ebrehault/abfab:latest
-        conatiner_name: abfab
-        command: sh -c "sleep 5 && guillotina"
+        container_name: abfab
+        command: sh -c 'sleep 5 && guillotina --override="root_user.password=${PASSWORD}" --override="databases.db.dsn=postgresql://guillotina:${POSTGRES_PASSWORD}@postgres:5432/guillotina"'
         volumes:
             - ./config.yaml:/app/config.yaml
-        ports:
-            - 8080:8080
         links:
             - postgres
     abfab-utils:
         image: ebrehault/abfab-utils:latest
-        command: sh utils/init.sh
+        command: sh utils/init.sh abfab ${PASSWORD}
         links:
             - postgres
             - abfab

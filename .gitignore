@@ -9,3 +9,4 @@ __pycache__
 g.db
 g.db.blobs
 *.svelte.js
+.env

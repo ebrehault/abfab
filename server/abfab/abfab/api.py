@@ -196,7 +196,7 @@ async def get_directory_edit_data(context, request):
 
 @configure.service(context=IContainer, method='GET', name='@edit-data',
                    permission='guillotina.Public', allow_access=True)
-async def get_directory_edit_data(context, request):
+async def get_root_edit_data(context, request):
     return {
         "type_name": "Directory",
         "path": "/",

@@ -7,12 +7,12 @@ applications:
 databases:
     db:
         storage: postgresql
-        dsn: postgresql://guillotina:secret@postgres:5432/guillotina
+        dsn: postgresql://guillotina:WILL_BE_OVERRIDEN@postgres:5432/guillotina
         read_only: false
 host: 0.0.0.0
 port: 8080
 root_user:
-    password: root
+    password: WILL_BE_OVERRIDEN
 auth_extractors:
     - guillotina.auth.extractors.BearerAuthPolicy
     - guillotina.auth.extractors.BasicAuthPolicy

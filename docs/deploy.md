@@ -21,12 +21,12 @@ curl -o config.yaml https://raw.githubusercontent.com/ebrehault/abfab/main/docke
 curl -o nginx.conf https://raw.githubusercontent.com/ebrehault/abfab/main/docker/nginx.conf
 ```
 
-Modify `docker-compose.yml` and choose a proper password for Postgres (`secret` in the example)
+Create a `.env` file containing the passwords for PostgreSQL and for the Guillotina server itself:
 
-Modify `config.yaml` and do the following changes:
-
--   set the Postgres password in the `dsn` field.
--   choose a proper Guillotina password (`root` in the example).
+```
+PASSWORD=secret-1
+POSTGRES_PASSWORD=secret-2
+```
 
 Modify `nginx.conf` and do the following changes:
 
@@ -38,5 +38,7 @@ Generate the SSL certificate with the following command (TO BE COMPLETED)
 ## Start the server
 
 ```
-docker-compose up -d
+sudo docker-compose up -d
 ```
+
+The first launch takes 2 or 3 minutes as it will init the AbFab container.
