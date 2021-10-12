@@ -2,6 +2,6 @@ FROM nikolaik/python-nodejs:python3.9-nodejs16
 
 WORKDIR /app
 ADD . .
-RUN npm install svelte@3.38.3 codemirror vim-wasm
+RUN npm install svelte@3.38.3
 RUN cp -r node_modules libs
 RUN pip install requests

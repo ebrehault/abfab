@@ -1,5 +1,4 @@
 <script>
-    import VimEditor from './vim.svelte';
     import CodeMirrorEditor from './codemirror.svelte';
     import Viewer from './viewer.svelte';
     import Add from './add.svelte';
@@ -18,7 +17,6 @@
     let error;
     let warnings = [];
     let type;
-    let useVim = localStorage.getItem('useVim') ? true : false;
     const RE = new RegExp(/from "(.+\/svelte(\/\w+){0,1})";/g);        
     let play = false;
     let componentPath;
@@ -119,12 +117,10 @@
 <header>
     <img src="/~/abfab/abfab.svg" alt="AbFab logo" />
     <ul>
-        {#if !useVim}
         <li>
             <AFButton kind="primary" aspect="basic" icon="check" label="Save" size="small"
                 on:click={triggerSave}/>
         </li>
-        {/if}
         {#if type === 'File'}
             {#if play}
             <li>
@@ -152,11 +148,7 @@
         {/if}
         
         <div class="editor">
-            {#if useVim}
-                <VimEditor context={_context} on:save={save}></VimEditor>
-            {:else}
-                <CodeMirrorEditor bind:this={codemirror} context={_context} on:save={save}></CodeMirrorEditor>
-            {/if}
+            <CodeMirrorEditor bind:this={codemirror} context={_context} on:save={save}></CodeMirrorEditor>
         </div>
         
         {#if hasError }

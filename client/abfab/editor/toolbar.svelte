@@ -6,23 +6,12 @@
 
     let showMore = false;
     let showNavigation = false;
-    let useVim = localStorage.getItem('useVim') ? true : false;
 
     function logout() {
         AbFabStore.update((state) => ({
             ...state,
             logged: false,
         }))
-    }
-
-    function toggleVim() {
-        useVim = !useVim;
-        if (useVim) {
-            localStorage.setItem('useVim', 'true');
-        } else {
-            localStorage.removeItem('useVim');
-        }
-        showMore = false;
     }
 
     function toggleNavigation() {
@@ -52,9 +41,6 @@
             <div class="menu" use:clickOutside on:clickoutside={() => showMore = false}>
                 <div on:click={logout}>
                     Log out
-                </div>
-                <div on:click={toggleVim}>
-                    Use {useVim ? 'CodeMirror' : 'Vim'}
                 </div>
             </div>
             {/if}
