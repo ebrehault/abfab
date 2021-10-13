@@ -7,6 +7,8 @@ services:
             - ./nginx.key:/etc/nginx/nginx.key
         ports:
             - 443:443
+        links:
+            - abfab
     postgres:
         image: postgres:10
         environment:
