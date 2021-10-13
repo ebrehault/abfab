@@ -1,6 +1,8 @@
+import time
 from guillotina import configure, content, schema
 from guillotina.interfaces import IFolder, IItem
-from guillotina.events import IObjectAddedEvent
+from guillotina.events import IObjectAddedEvent, IObjectModifiedEvent
+from guillotina.utils import get_registry
 from mimetypes import guess_type
 from zope.interface import implementer, Interface
 
@@ -53,3 +55,19 @@ class IContent(IItem):
 @implementer(IAbFabEditable)
 class Content(content.Item):
     pass
+
+class IAbFabRegistry(Interface):
+    lastFileChange = schema.Text(title="Last file change", default="0")
+
+async def update_last_modified():
+    registry = await get_registry()
+    config = registry.for_interface(IAbFabRegistry)
+    if config is None:
+        registry.register_interface(IAbFabRegistry)
+        config = registry.for_interface(IAbFabRegistry)
+    config["lastFileChange"] = str(round(time.time()))
+    registry.register()
+
+@configure.subscriber(for_=(IFile, IObjectModifiedEvent))
+async def on_modify_file(obj, evnt):
+    await update_last_modified()

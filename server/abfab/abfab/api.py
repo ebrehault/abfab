@@ -4,8 +4,8 @@ from guillotina.behaviors.attachment import IAttachment
 from guillotina.api.content import DefaultGET
 from guillotina.response import HTTPFound, Response
 from guillotina.interfaces import IFileManager, IContainer
-from guillotina.utils import get_current_container, navigate_to, get_object_url, get_content_path
-from abfab.content import IFile, IDirectory, IContent, IAbFabEditable
+from guillotina.utils import get_current_container, navigate_to, get_object_url, get_content_path, get_registry
+from abfab.content import IFile, IDirectory, IContent, IAbFabEditable, IAbFabRegistry
 from urllib.parse import urlparse
 from pathlib import PurePath
 
@@ -27,14 +27,22 @@ async def get_object_by_path(path):
     container = get_current_container()
     return await navigate_to(container, path)
 
-async def view_source(context, request):
+async def get_last_modified():
+    registry = await get_registry()
+    config = registry.for_interface(IAbFabRegistry)
+    if config is None:
+        return "0"
+    return config["lastFileChange"] or "0"
+
+async def view_source(context, request, content_type=None):
     behavior = IAttachment(context)
     await behavior.load(create=False)
     field = IAttachment["file"].bind(behavior)
     adapter = get_multi_adapter((context, request, field), IFileManager)
-    return await adapter.download(disposition="inline")
+    last_change = await get_last_modified()
+    return await adapter.download(disposition="inline", content_type=content_type, extra_headers={'X-LastFileChange': last_change})
 
-def wrap_component(request, js_component, path_to_content, type='json'):
+async def wrap_component(request, js_component, path_to_content, type='json'):
     get_context = ""
     if path_to_content:
         path_to_content = (path_to_content.startswith('/') and "/~" + path_to_content) or path_to_content
@@ -44,7 +52,7 @@ def wrap_component(request, js_component, path_to_content, type='json'):
     else:
         context = request.query.get('context', {})
         get_context = """let context = {context}""".format(context=context)
-    return """<!DOCTYPE html>
+    body = """<!DOCTYPE html>
 <html lang="en">
 <script type="module">
     import Component from '/~{component}';
@@ -58,6 +66,14 @@ def wrap_component(request, js_component, path_to_content, type='json'):
 </script>
 </html>
 """.format(component=get_content_path(js_component), get_context=get_context)
+    last_change = await get_last_modified()
+    return Response(
+        content=body,
+        status=200,
+        headers={
+            'X-LastFileChange': last_change,
+        }
+    )
 
 @configure.service(context=IFile, method='GET',
                    permission='guillotina.Public', allow_access=True)
@@ -65,7 +81,7 @@ async def get_file(context, request):
     if context.id.endswith(".svelte") and 'raw' not in request.query:
         js = await get_object_by_path(get_content_path(context) + '.js')
         if "text/html" in request.headers["ACCEPT"]:
-            return wrap_component(request, js, None)
+            return await wrap_component(request, js, None)
         else:
             return await view_source(js, request)
     return await view_source(context, request)
@@ -113,7 +129,7 @@ async def get_view_or_data(context, request):
         if view.type_name == 'Directory':
             return await get_index(view, request)
         if view.content_type == "application/javascript" or view.id.endswith('.svelte'):
-            return wrap_component(request, view, './' + context.id)
+            return await wrap_component(request, view, './' + context.id)
         else:
             return await view_source(view, request)
     else:
@@ -125,20 +141,12 @@ async def get_view_or_data(context, request):
                    permission='guillotina.Public', allow_access=True)
 async def run_editor(context, request):
     editor_view = await get_object_by_path('/abfab/editor/editor.svelte')
-    return wrap_component(request, editor_view, './@edit-data', 'text')
-    # return Response(
-    #     content=wrap_component(request, editor_view, './@edit-data', 'text'),
-    #     status=200,
-    #     headers={
-    #         'Cross-Origin-Opener-Policy': 'same-origin',
-    #         'Cross-Origin-Embedder-Policy': 'require-corp',
-    #     }
-    # )
+    return await wrap_component(request, editor_view, './@edit-data', 'text')
 
 @configure.service(context=IFile, method='GET', name='@edit-data',
                    permission='guillotina.Public', allow_access=True)
 async def get_editable_file(context, request):
-    return await view_source(context, request)
+    return await view_source(context, request, content_type="text/plain")
 
 @configure.service(context=IDirectory, method='GET', name='@allfiles',
                    permission='guillotina.Public', allow_access=True)

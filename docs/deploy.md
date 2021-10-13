@@ -31,7 +31,7 @@ POSTGRES_PASSWORD=secret-2
 Modify `nginx.conf` and do the following changes:
 
 -   set the `server_name` to the domain name of your website
--   change the location (`somepath` in the example) in 2 places (in the `location` directive and in the `sub_filter` directive)
+-   change the location (`somepath` in the example) in 3 places (in the `location` , `rewrite` and `sub_filter`)
 
 Generate the SSL certificate with the following command (TO BE COMPLETED)
 

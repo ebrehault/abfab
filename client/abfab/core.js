@@ -18,15 +18,23 @@ export function redirectToLogin() {
 export function navigateTo(path) {
     AbFabStore.update((state) => ({ ...state, _navigateTo: path }));
 }
+
+// / ~ / will be replaced by the nginx rewrite rule and will become something
+// like /somepath/<cachekey>/
+const NAV_ROOT = '/~/';
+const PREFIX = NAV_ROOT.split('/')[1];
+const REAL_PATH_RE = new RegExp(`.+/${PREFIX}/(?:[0-9]+/|)(.+)`);
 export function getRealPath(path) {
-    return path.startsWith('/') && !path.startsWith('/~/')
+    return path.startsWith('/') && !path.startsWith(`/${PREFIX}/`)
         ? `/~/${path.slice(1)}`
         : path.startsWith('http')
-        ? path.slice(path.indexOf('/~/'))
+        ? path.replace(REAL_PATH_RE, '/~/$1')
         : path;
 }
+
+const CORE_PATH_RE = new RegExp('/~/(?:[0-9]+/|)(.+)');
 export function getCorePath(path) {
-    return path.replace('/~/', '');
+    return path.replace(CORE_PATH_RE, '/$1');
 }
 export const API = {
     getHeaders: (extraHeaders) => {
