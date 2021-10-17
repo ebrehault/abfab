@@ -25,7 +25,8 @@
                 reader.abort();
                 reject(new Error(`Error on loading file ${file}`));
             };
-            reader.readAsArrayBuffer(file);
+            // TODO: use readAsArrayBuffer for binaries
+            reader.readAsText(file);
         });
     }
     async function uploadFiles({target}) {

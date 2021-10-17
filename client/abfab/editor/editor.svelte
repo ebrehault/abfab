@@ -8,7 +8,6 @@
     import { showNavigation, loadTree, saveFile } from './editor.js';
     import { AbFabStore } from '/~/abfab/core.js';
     import { onMount } from 'svelte';
-    import { compile } from 'svelte/compiler.mjs';
     import { derived } from '/~/libs/svelte/store';
 
     export let context;
@@ -16,8 +15,7 @@
     let _context = '';
     let error;
     let warnings = [];
-    let type;
-    const RE = new RegExp(/from "(.+\/svelte(\/\w+){0,1})";/g);        
+    let type;        
     let play = false;
     let componentPath;
     let viewer;
@@ -59,33 +57,12 @@
     
     async function save(event) {
         const source = event.detail;
-        const ABFAB_ROOT = '/~';
-        let js = '';
         const pathname = location.pathname.replace('/~/', '/').replace('/@edit', '');
-        const isSvelte = pathname.endsWith('.svelte');
-        if (isSvelte) {
-            try {
-                const result = compile(source, {
-                    sveltePath: ABFAB_ROOT + '/libs/svelte',
-                    customElement: source.includes('<' + 'svelte:options tag='),
-                });
-                error = undefined;
-                js = result.js;
-                const warningsFixed = result.warnings.length === 0 && warnings.length > 0;
-                warnings = result.warnings;
-                if (warningsFixed) {
-                    updateErrors();
-                }
-            } catch (e) {
-                error = e;
-            }
-        }
+        const result = await saveFile(pathname, type, source);
+        error = result.error;
+        warnings = result.warnings;
+        updateErrors();
         if (!error) {
-            await saveFile(pathname, type, source)
-            if (isSvelte) {
-                const jsFilePath = pathname + '.js';
-                await saveFile(jsFilePath, 'File', js.code.replace(RE, 'from "$1/index.mjs";'))
-            }
             refreshViewer();
         }
     }

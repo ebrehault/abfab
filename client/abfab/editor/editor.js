@@ -1,5 +1,9 @@
 import { writable, derived, get } from '/~/libs/svelte/store';
 import { getRealPath, API, redirectToLogin } from '/~/abfab/core.js';
+import { compile } from '/~/libs/svelte/compiler.mjs';
+
+const ABFAB_ROOT = '/~';
+const SVELTE_RE = new RegExp(/from "(.+\/svelte(\/\w+){0,1})";/g);
 
 export const EditorStore = writable({
     tree: [],
@@ -120,7 +124,32 @@ const addTreeItem = (parentPath, newItem, tree) => {
 
 export const showNavigation = derived(EditorStore, (state) => state.showNavigation);
 
-export function saveFile(filepath, type, content) {
+export async function saveFile(filepath, type, content) {
+    const isSvelte = filepath.endsWith('.svelte');
+    let error, warnings, js;
+    if (isSvelte) {
+        try {
+            const result = compile(content, {
+                sveltePath: ABFAB_ROOT + '/libs/svelte',
+                customElement: content.includes('<' + 'svelte:options tag='),
+            });
+            js = result.js;
+            warnings = result.warnings;
+        } catch (e) {
+            error = e;
+        }
+    }
+    if (!error) {
+        await _saveFile(filepath, type, content);
+        if (isSvelte) {
+            const jsFilePath = filepath + '.js';
+            await _saveFile(jsFilePath, 'File', js.code.replace(SVELTE_RE, 'from "$1/index.mjs";'));
+        }
+    }
+    return { error, warnings: warnings || [] };
+}
+
+function _saveFile(filepath, type, content) {
     filepath = getRealPath(filepath);
     const path = filepath.split('/');
     const filename = path.pop();
