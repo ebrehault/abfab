@@ -6,7 +6,7 @@
     let password;
     let error = '';
     const urlParams = new URLSearchParams(window.location.search);
-    const redirect = urlParams.get('from') || '/~/abfab';
+    const redirect = urlParams.get('from') || '/~/@edit';
 
     const login = async () => {
         error = '';
@@ -28,7 +28,7 @@
     <link rel="stylesheet" href="/~/abfab/pastanaga/pastanaga.css">
 </svelte:head>
 <main>
-    <img src="/~/abfab/abfab.svg">
+    <img src="/~/abfab/abfab.svg" alt="AbFab logo">
     <AFInput id="username" bind:value={username} label="Username"></AFInput>
     <AFInput id="password" type="password" bind:value={password} label="Password"></AFInput>
     <div class="message">
