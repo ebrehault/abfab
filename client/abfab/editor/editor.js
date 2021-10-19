@@ -8,18 +8,19 @@ const SVELTE_RE = new RegExp(/from "(.+\/svelte(\/\w+){0,1})";/g);
 export const EditorStore = writable({
     tree: [],
     dirs: [],
-    showNavigation: false,
+    showNavigation: true,
 });
 
 export const loadTree = async () => {
     const response = await API.get('/~/@tree');
     if (response.ok) {
-        const currentLocation = window.location.pathname.replace('/@edit', '');
+        const currentLocation = getRealPath(window.location.pathname.replace('/@edit', ''));
         const tree = [
             {
                 type: 'Directory',
                 path: '/',
                 children: await response.json(),
+                expanded: true,
             },
         ];
         const dirs = [];
@@ -110,6 +111,7 @@ const addTreeItem = (parentPath, newItem, tree) => {
             parent.children = [];
         }
         parent.children.push(newItem);
+        parent.children.sort((a, b) => a.name.localeCompare(b.path));
         return tree.map((item) => (item.path === parentPath ? parent : item));
     } else if (tree.find((item) => parentPath.startsWith(item.path))) {
         return tree.map((item) =>
