@@ -2,11 +2,9 @@ services:
     reverse-proxy:
         image: nginx
         volumes:
-            - ./nginx.conf:/etc/nginx/nginx.conf
-            - ./nginx.crt:/etc/nginx/nginx.crt
-            - ./nginx.key:/etc/nginx/nginx.key
+            - ./nginx-local.conf:/etc/nginx/nginx.conf
         ports:
-            - 443:443
+            - 80:80
         links:
             - abfab
     postgres:
@@ -14,13 +12,13 @@ services:
         environment:
             POSTGRES_DB: guillotina
             POSTGRES_USER: guillotina
-            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+            POSTGRES_PASSWORD: my-secret
     abfab:
         container_name: abfab
         build:
             context: ../server/abfab
             dockerfile: Dockerfile
-        command: sh -c 'sleep 5 && guillotina --override="root_user.password=${PASSWORD}" --override="databases.db.dsn=postgresql://guillotina:${POSTGRES_PASSWORD}@postgres:5432/guillotina"'
+        command: sh -c 'sleep 5 && guillotina --override="root_user.password=root" --override="databases.db.dsn=postgresql://guillotina:my-secret@postgres:5432/guillotina"'
         ports:
             - 8080:8080
         volumes:
@@ -31,7 +29,7 @@ services:
         build:
             context: ..
             dockerfile: docker/Dockerfile-utils
-        command: sh utils/init.sh abfab ${PASSWORD}
+        command: sh utils/init.sh abfab root
         links:
             - postgres
             - abfab

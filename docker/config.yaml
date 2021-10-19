@@ -39,7 +39,7 @@ cors:
     allow_credentials: true
     max_age: 3660
 jwt:
-    secret: foobar
+    secret: WILL_BE_OVERRIDEN
     algorithm: HS256
 jsapps:
     +admin: guillotina:static/executioner

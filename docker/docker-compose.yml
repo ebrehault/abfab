@@ -3,8 +3,7 @@ services:
         image: nginx
         volumes:
             - ./nginx.conf:/etc/nginx/nginx.conf
-            - ./nginx.crt:/etc/nginx/nginx.crt
-            - ./nginx.key:/etc/nginx/nginx.key
+            - /etc/letsencrypt/live/<your-domain>:/ssl
         ports:
             - 443:443
         links:
@@ -18,7 +17,7 @@ services:
     abfab:
         image: ebrehault/abfab:latest
         container_name: abfab
-        command: sh -c 'sleep 5 && guillotina --override="root_user.password=${PASSWORD}" --override="databases.db.dsn=postgresql://guillotina:${POSTGRES_PASSWORD}@postgres:5432/guillotina"'
+        command: sh -c 'sleep 5 && guillotina --override="root_user.password=${PASSWORD}" --override="jwt.secret=${JWT_SECRET}" --override="databases.db.dsn=postgresql://guillotina:${POSTGRES_PASSWORD}@postgres:5432/guillotina"'
         volumes:
             - ./config.yaml:/app/config.yaml
         links:
