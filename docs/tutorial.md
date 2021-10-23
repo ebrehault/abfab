@@ -437,3 +437,13 @@ Note: you are free to use any other UI library in AbFab (see below [Using extern
 ## The Data API
 
 ## Developing locally with an IDE
+
+TBD
+
+```sh
+docker run --rm -v /<absolute_path>/tutorial:/app/tutorial ebrehault/abfab-utils python utils/sync.py down tutorial --auth root:<password> --host https://demo.abfab.dev/somepath --root .
+```
+
+```sh
+docker run --rm -v /<absolute_path>/tutorial:/app/tutorial ebrehault/abfab-utils python utils/sync.py up tutorial --auth root:<password> --host https://demo.abfab.dev/somepath/ --root .
+```

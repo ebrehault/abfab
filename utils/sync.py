@@ -8,10 +8,12 @@ import argparse
 # GUILLOTINA_CONTAINER_ROOT = 'http://localhost:8080/db/my-app/'
 
 def get_url(path):
+    if path[0] != '/':
+        path = '/' + path
     return args.host + path
 
 def get_parent_url(path):
-    return '/'.join(get_url(path).split('/')[:-1])
+    return '/'.join(get_url(path).split('/')[:-1]) + '/'
 
 def save_object(path, data):
     res = requests.post(
@@ -114,20 +116,26 @@ def delete_remote(path):
 
 def download_file(obj, root):
     res = requests.get(
-        obj['url'] + "/@edit-data",
+        get_url(obj['path']) + "/@edit-data",
         auth=AUTH,
         verify=False)
-    with open(os.path.join(root, obj['path'][1:]), 'wb') as f:
+    filepath = os.path.join(root, obj['path'][1:])
+    print("Saving " + filepath)
+    with open(filepath, 'wb') as f:
         f.write(res.content)
 
 def download_folder(path, root):
+    if not os.path.exists(path):
+        os.makedirs(path)
     res = requests.get(
         get_url(path) + "/@allfiles",
         headers={'Accept': 'application/json', 'Content-Type': 'application/json'},
         auth=AUTH,
         verify=False)
     for item in res.json():
-        if item['type'] == 'File' and (not args.svelteOnly or item['path'].endswith('.svelte')):
+        if item['path'].endswith('.svelte.js'):
+            continue
+        if (item['type'] == 'File' or item['type'] == 'Content') and (not args.svelteOnly or item['path'].endswith('.svelte')):
             download_file(item, root)
         else:
             dir_path = os.path.join(root, item['path'][1:])
