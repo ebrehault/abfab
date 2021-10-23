@@ -10,9 +10,9 @@
     import { onMount } from 'svelte';
     import { derived } from '/~/libs/svelte/store';
 
-    export let context;
+    export let content;
 
-    let _context = '';
+    let _content = '';
     let error;
     let warnings = [];
     let type;        
@@ -27,15 +27,15 @@
     $: {
         let obj;
         try {
-            obj = JSON.parse(context);
+            obj = JSON.parse(content);
             type = obj.type_name;
         } catch (e) {
             type = 'File';
         }
         if (type === 'File') {
-            _context = context;
+            _content = content;
         } else if (type === 'Content' || type === 'Directory') {
-            _context = JSON.stringify(obj.data || {});
+            _content = JSON.stringify(obj.data || {});
         }
     }
     $: hasError = !!error || warnings.length > 0;
@@ -126,7 +126,7 @@
         {/if}
         
         <div class="editor">
-            <CodeMirrorEditor bind:this={codemirror} context={_context} on:save={save}></CodeMirrorEditor>
+            <CodeMirrorEditor bind:this={codemirror} content={_content} on:save={save}></CodeMirrorEditor>
         </div>
         
         {#if hasError }

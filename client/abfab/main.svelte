@@ -4,7 +4,7 @@
     import { derived } from 'svelte/store';
 
     export let component;
-    export let context;
+    export let content;
 
     // Adapted from https://github.com/sveltejs/kit/blob/master/packages/kit/src/runtime/client/router.js
     if ('scrollRestoration' in history) {
@@ -50,7 +50,7 @@
             const response = await API.get(path.replace('/@edit', '/@edit-data'));
             const code = await response.text();
             const module = await import(`/~/abfab/editor/editor.svelte`);
-            context = code;
+            content = code;
             component = module.default;
         } else {
             const response = await API.get(`${path}/@basic${!!query ? '?' + query : ''}`);
@@ -58,12 +58,12 @@
             if (basicData.type_name === 'Content') {
                 const module = await import(getRealPath(basicData.view));
                 component = module.default;
-                context = basicData.data;
+                content = basicData.data;
             } else {
                 const module = await import(getRealPath(basicData.path));
                 component = module.default;
-                const queryContext = (new URLSearchParams(query)).get('context');
-                context = queryContext ? JSON.parse(decodeURIComponent(queryContext)) : {};
+                const queryContent = (new URLSearchParams(query)).get('content');
+                content = queryContent ? JSON.parse(decodeURIComponent(queryContent)) : {};
             }   
         }
     }
@@ -86,4 +86,4 @@
 
 	onDestroy(() => subscriptions.map(unsubscribe => unsubscribe()));
 </script>
-<svelte:component this={component} context={context}></svelte:component>
+<svelte:component this={component} content={content}></svelte:component>

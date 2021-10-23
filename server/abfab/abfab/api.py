@@ -43,29 +43,29 @@ async def view_source(context, request, content_type=None):
     return await adapter.download(disposition="inline", content_type=content_type, extra_headers={'X-LastFileChange': last_change})
 
 async def wrap_component(request, js_component, path_to_content, type='json'):
-    get_context = ""
+    get_content = ""
     if path_to_content:
         path_to_content = (path_to_content.startswith('/') and "/~" + path_to_content) or path_to_content
-        get_context = """let response = await fetch('{path_to_content}');
-    let context = await response.{type}();
+        get_content = """let response = await fetch('{path_to_content}');
+    let content = await response.{type}();
     """.format(path_to_content=path_to_content, type=type)
     else:
-        context = request.query.get('context', {})
-        get_context = """let context = {context}""".format(context=context)
+        content = request.query.get('content', {})
+        get_content = """let content = {content}""".format(content=content)
     body = """<!DOCTYPE html>
 <html lang="en">
 <script type="module">
     import Component from '/~{component}';
     import Main from '/~/abfab/main.svelte.js';
-    {get_context}
+    {get_content}
     const component = new Main({{
         target: document.body,
-        props: {{context, component: Component}},
+        props: {{content, component: Component}},
     }});
     export default component;
 </script>
 </html>
-""".format(component=get_content_path(js_component), get_context=get_context)
+""".format(component=get_content_path(js_component), get_content=get_content)
     last_change = await get_last_modified()
     return Response(
         content=body,

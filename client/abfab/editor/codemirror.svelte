@@ -2,7 +2,7 @@
     import { onMount } from 'svelte';
     import { createEventDispatcher } from 'svelte';
 
-    export let context;
+    export let content;
 
     let textarea;
     let codeMirror;
@@ -63,7 +63,7 @@
     });
 
     $: if (isInitialized) {
-        codeMirror.setValue(context);
+        codeMirror.setValue(content);
         setMode();
     }
     

@@ -14,7 +14,7 @@
     function displayData(value, timestamp) {
         try {
             const data = JSON.stringify(JSON.parse(value));
-            path = `${_componentPath}?time=${timestamp}&context=${data}`;
+            path = `${_componentPath}?time=${timestamp}&content=${data}`;
 			dataError = false;
         } catch(e) {
             dataError = true;
