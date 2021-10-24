@@ -430,6 +430,18 @@ Now you have a Pastanaga button instead of the default button.
 
 Note: you are free to use any other UI library in AbFab (see below [Using external libraries](#using-external-libraries)).
 
+## Implementing a full app
+
+Up to now, you have created contents manually using the AbFab online interface, and your components were allows working on their own.
+
+AbFab can be used to build entire applications providing different views and allowing to manage data.
+
+Let's create a typical CRUD (Create-Read-Update-Delete) application: a contact manager.
+
+First, create a folder named `crud`.
+
+Add a sub-folder named `contacts`, that is where contacts will be stored.
+
 ## Using external libraries
 
 ## Publishing components

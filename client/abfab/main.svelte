@@ -75,15 +75,6 @@
             navigate(value);
         }
     }));
-
-    const _logged = derived(AbFabStore, (state) => state.logged);
-    subscriptions.push(_logged.subscribe(isLogged => {
-		if (!isLogged) {
-            localStorage.removeItem('auth');
-            navigate('/~/abfab/login/login.svelte');
-        }
-	}));
-
 	onDestroy(() => subscriptions.map(unsubscribe => unsubscribe()));
 </script>
 <svelte:component this={component} content={content}></svelte:component>

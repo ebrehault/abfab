@@ -11,12 +11,13 @@ let redirecting = false;
 
 export function redirectToLogin() {
     if (!redirecting) {
+        localStorage.removeItem('auth');
         navigateTo(`/~/abfab/login/login.svelte?from=${window.location.pathname}`);
         redirecting = true;
     }
 }
 export function navigateTo(path) {
-    AbFabStore.update((state) => ({ ...state, _navigateTo: path }));
+    AbFabStore.update((state) => ({ ...state, _navigateTo: getRealPath(path) }));
 }
 
 // / ~ / will be replaced by the nginx rewrite rule and will become something
@@ -92,9 +93,13 @@ export const Content = {
         return API.post(getRealPath(path), body);
     },
     update: (path, data) => {
-        return API.patch(getRealPath(path || location.pathname), JSON.stringify(data));
+        return API.patch(getRealPath(path || location.pathname), JSON.stringify({ data }));
     },
     delete: (path) => {
         return API.delete(getRealPath(path || location.pathname));
+    },
+    folderContents: async (path) => {
+        const folder = await API.get(getRealPath(path) + '/@contents');
+        return folder.json();
     },
 };

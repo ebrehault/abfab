@@ -6,8 +6,8 @@
     import Toolbar from './toolbar.svelte';
     import Navigation from './navigation.svelte';
     import { showNavigation, loadTree, saveFile } from './editor.js';
-    import { AbFabStore } from '/~/abfab/core.js';
-    import { onMount } from 'svelte';
+    import { AbFabStore, redirectToLogin } from '/~/abfab/core.js';
+    import { onMount, onDestroy } from 'svelte';
     import { derived } from '/~/libs/svelte/store';
 
     export let content;
@@ -21,8 +21,9 @@
     let viewer;
     let codemirror;
     let mode = 'edit';
-    derived(AbFabStore, (state) => state.query)
-        .subscribe(query => mode = (new URLSearchParams(query)).get('mode') || 'edit');
+    const subscriptions = [];
+    subscriptions.push(derived(AbFabStore, (state) => state.query)
+        .subscribe(query => mode = (new URLSearchParams(query)).get('mode') || 'edit'));
 
     $: {
         let obj;
@@ -87,6 +88,14 @@
         console.log(`Wheels on fire,\nRolling down the road.\nBest notify my next of kin\nThis wheel shall explode!\n\n`);
         loadTree();
     });
+
+    subscriptions.push(derived(AbFabStore, (state) => state.logged).subscribe(isLogged => {
+		if (!isLogged) {
+            redirectToLogin();
+        }
+	}));
+
+    onDestroy(() => subscriptions.map(unsubscribe => unsubscribe()));
 </script>
 
 <svelte:head>

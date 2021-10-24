@@ -176,6 +176,16 @@ async def get_tree(context, request, depth=3):
         children.append(data)
     return children
 
+@configure.service(context=IDirectory, method='GET', name='@contents',
+                   permission='guillotina.Public', allow_access=True)
+async def get_contents(context, request):
+    children = []
+    async for _, obj in context.async_items():
+        if obj.type_name == "Content":
+            data = {"path": get_content_path(obj), "data": obj.data}
+            children.append(data)
+    return children
+
 @configure.service(context=IContent, method='GET', name='@basic',
                    permission='guillotina.Public', allow_access=True)
 @configure.service(context=IContent, method='GET', name='@edit-data',
