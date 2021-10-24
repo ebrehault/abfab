@@ -2,26 +2,41 @@
 
 <head>
     <title>Demo</title>
+    <link rel="stylesheet"
+          href="https://demo.abfab.dev/somepath/abfab/pastanaga/pastanaga.css">
+    <style>
+        body {
+            margin: 1em;
+        }
+
+        pre {
+            background-color: var(--color-neutral-primary-lighter);
+            padding: 1em;
+        }
+    </style>
 </head>
 
 <body>
     <h1>AbFab demo</h1>
     <section>
         <h2>Embed as iframe</h2>
-        <pre><code>&lt;iframe src="https://demo.abfab.dev/somepath/dataviz/some-circles" style="border: none"></iframe></code>
-        </pre>
+        <pre><code>&lt;iframe src="https://demo.abfab.dev/somepath/dataviz/some-circles" style="border: none"></iframe></code></pre>
         <iframe src="https://demo.abfab.dev/somepath/dataviz/some-circles"
                 style="border: none"></iframe>
     </section>
     <section>
         <h2>Embed as Custom element</h2>
         <pre><code>&lt;script type="module"
-        src="https://demo.abfab.dev/somepath/1635002242/dataviz/standalone.svelte"></script>
-&lt;my-circles>&lt;/my-circles></code>
+        src="https://demo.abfab.dev/somepath/1635017380/abfab/element.svelte.js"></script>
+&lt;abfab-element contentpath="https://demo.abfab.dev/somepath/1635055318/dataviz/some-circles"
+                componentpath="https://demo.abfab.dev/somepath/1635055318/dataviz/circles.svelte">
+&lt;/abfab-element></code>
 </pre>
         <script type="module"
-                src="https://demo.abfab.dev/somepath/1635002242/dataviz/standalone.svelte"></script>
-        <my-circles></my-circles>
+                src="https://demo.abfab.dev/somepath/1635017380/abfab/element.svelte.js"></script>
+        <abfab-element contentpath="https://demo.abfab.dev/somepath/1635055318/dataviz/some-circles"
+                       componentpath="https://demo.abfab.dev/somepath/1635055318/dataviz/circles.svelte">
+        </abfab-element>
     </section>
 </body>
 

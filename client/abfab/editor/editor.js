@@ -1,4 +1,4 @@
-import { writable, derived, get } from '/~/libs/svelte/store';
+import { writable, derived, get } from '/~/libs/svelte/store/index.mjs';
 import { getRealPath, API, redirectToLogin } from '/~/abfab/core.js';
 import { compile } from '/~/libs/svelte/compiler.mjs';
 

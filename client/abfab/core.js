@@ -1,4 +1,4 @@
-import { writable } from '/~/libs/svelte/store';
+import { writable } from '/~/libs/svelte/store/index.mjs';
 
 export const AbFabStore = writable({
     path: '',
