@@ -1,5 +1,5 @@
 import { writable, derived, get } from '/~/libs/svelte/store/index.mjs';
-import { getRealPath, API, redirectToLogin } from '/~/abfab/core.js';
+import { getRealPath, getCorePath, API, redirectToLogin } from '/~/abfab/core.js';
 import { compile } from '/~/libs/svelte/compiler.mjs';
 
 const ABFAB_ROOT = '/~';
@@ -14,7 +14,7 @@ export const EditorStore = writable({
 export const loadTree = async () => {
     const response = await API.get('/~/@tree');
     if (response.ok) {
-        const currentLocation = getRealPath(window.location.pathname.replace('/@edit', ''));
+        const currentLocation = getCorePath(window.location.pathname.replace('/@edit', ''));
         const tree = [
             {
                 type: 'Directory',
@@ -28,10 +28,10 @@ export const loadTree = async () => {
             if (item.type === 'Directory') {
                 dirs.push(item.path);
             }
-            const itemPath = getRealPath(item.path);
+            const itemPath = getCorePath(item.path);
             return {
                 name: item.path === '/' ? '~' : item.path.split('/').pop(),
-                path: itemPath,
+                path: getRealPath(item.path),
                 type: item.type,
                 children: !!item.children
                     ? item.children.sort((a, b) => a.path.localeCompare(b.path)).map(mapTree)

@@ -5,6 +5,7 @@
     import AFButton from '../ui/button.svelte';
     import Toolbar from './toolbar.svelte';
     import Navigation from './navigation.svelte';
+    import Properties from './properties.svelte';
     import { showNavigation, loadTree, saveFile } from './editor.js';
     import { AbFabStore, redirectToLogin } from '/~/abfab/core.js';
     import { onMount, onDestroy } from 'svelte';
@@ -15,26 +16,32 @@
     let _content = '';
     let error;
     let warnings = [];
-    let type;        
+    let type;
+    let viewComponent;
+    let contentPath;
     let play = false;
-    let componentPath;
+    let properties = false;
     let viewer;
     let codemirror;
     let mode = 'edit';
     const subscriptions = [];
     subscriptions.push(derived(AbFabStore, (state) => state.query)
-        .subscribe(query => mode = (new URLSearchParams(query)).get('mode') || 'edit'));
-
+    .subscribe(query => mode = (new URLSearchParams(query)).get('mode') || 'edit'));
+    
     $: {
+        const currentPath = location.pathname.replace('/@edit', '');
         let obj;
         try {
             obj = JSON.parse(content);
             type = obj.type_name;
+            viewComponent = obj.view;
+            contentPath = currentPath;
         } catch (e) {
             type = 'File';
         }
         if (type === 'File') {
             _content = content;
+            viewComponent = currentPath;
         } else if (type === 'Content' || type === 'Directory') {
             _content = JSON.stringify(obj.data || {});
         }
@@ -45,8 +52,14 @@
     }
 
     function togglePlay() {
-        componentPath = location.pathname.replace('/@edit', '');
         play = !play;
+        properties = false;
+        window.dispatchEvent(new Event('resize'));
+    }
+
+    function toggleProperties() {
+        properties = !properties;
+        play = false;
         window.dispatchEvent(new Event('resize'));
     }
 
@@ -108,17 +121,21 @@
             <AFButton kind="primary" aspect="basic" icon="check" label="Save" size="small"
                 on:click={triggerSave}/>
         </li>
-        {#if type === 'File'}
-            {#if play}
+        {#if type !== 'Directory' && play}
             <li>
                 <AFButton aspect="basic" icon="refresh" label="Refresh" size="small"
                     on:click={refreshViewer}/>
             </li>
-            {/if}
-            <li>
-                <AFButton kind="primary" aspect="basic" icon="play" label="Play" size="small" active={play}
-                on:click={togglePlay}/>
-            </li>
+        {/if}
+        {#if type !== 'Directory'}
+        <li>
+            <AFButton kind="primary" aspect="basic" icon="play" label="Play" size="small" active={play}
+            on:click={togglePlay}/>
+        </li>
+        <li>
+            <AFButton kind="primary" aspect="basic" icon="info" label="Play" size="small" active={properties}
+            on:click={toggleProperties}/>
+        </li>
         {/if}
     </ul>
 </header>
@@ -157,7 +174,10 @@
         {/if}
     </div>
     {#if play}
-    <Viewer bind:this={viewer} componentPath={componentPath}></Viewer>
+    <Viewer bind:this={viewer} componentPath={viewComponent} {contentPath}></Viewer>
+    {/if}
+    {#if properties}
+    <Properties componentPath={viewComponent} {contentPath}></Properties>
     {/if}
 </main>
 <style>

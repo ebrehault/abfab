@@ -23,8 +23,13 @@
 
         const a = find_anchor(event.target);
         if (!a) return;
-
         if (!a.href) return;
+        const rel = (a.getAttribute('rel') || '').split(/\s+/);
+        if (a.hasAttribute('download') || (rel && rel.includes('external'))) {
+            return;
+        }
+        if (a instanceof SVGAElement ? a.target.baseVal : a.target) return;
+
         const svg = typeof a.href === 'object' && a.href.constructor.name === 'SVGAnimatedString';
 		const href = String(svg ? a.href.baseVal : a.href);
 

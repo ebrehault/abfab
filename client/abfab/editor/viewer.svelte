@@ -4,9 +4,9 @@
     import { getRealPath, getCorePath} from '/~/abfab/core.js';
 
     export let componentPath;
-    const _componentPath = getRealPath(componentPath);
-    let path = _componentPath;
-    let contentPath = '';
+    export let contentPath;
+    const _componentPath = componentPath ? getRealPath(componentPath) : '';
+    let path = contentPath ? `${contentPath}?viewpath=${getCorePath(_componentPath)}&time=${timestamp}` : _componentPath;
     let dataError = false;
 	let jsonData = '';
 	let iframe;
