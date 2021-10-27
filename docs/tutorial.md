@@ -453,9 +453,9 @@ Add a sub-folder named `contacts`, that is where contacts will be stored.
 TBD
 
 ```sh
-docker run --rm -v /<absolute_path>/tutorial:/app/tutorial ebrehault/abfab-utils python utils/sync.py down tutorial --auth root:<password> --host https://demo.abfab.dev/somepath --root .
+docker run --rm -v /<absolute_path>/tutorial:/app/tutorial ebrehault/abfab-utils python utils/sync.py down tutorial --auth root:<password> --host https://demo.abfab.dev/somepath --root . --contents
 ```
 
 ```sh
-docker run --rm -v /<absolute_path>/tutorial:/app/tutorial ebrehault/abfab-utils python utils/sync.py up tutorial --auth root:<password> --host https://demo.abfab.dev/somepath/ --root .
+docker run --rm -v /<absolute_path>/tutorial:/app/tutorial ebrehault/abfab-utils python utils/sync.py up tutorial --auth root:<password> --host https://demo.abfab.dev/somepath/ --root . --contents
 ```

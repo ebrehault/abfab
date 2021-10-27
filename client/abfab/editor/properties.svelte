@@ -27,8 +27,8 @@
         <a target="_new" href={link}>Open in its own tab</a>
     </p>
     <h3>Embed</h3>
+    <AFTextarea label="Web component snippet" bind:value={elementSnippet} />
     <AFTextarea label="Iframe snippet" bind:value={iframeSnippet} />
-    <AFTextarea label="Custom element snippet" bind:value={elementSnippet} />
 </section>
 <style>
 section {

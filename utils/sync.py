@@ -77,6 +77,8 @@ def create_folder(path):
 
 def create_file(remote_content_path, local_content_path):
     file_id = remote_content_path.split('/')[-1]
+    if file_id == '.DS_Store':
+        return
     if file_id == 'package.json':
         with open(local_content_path, encoding='utf-8') as source_file:
             content = json.loads(source_file.read())
@@ -84,12 +86,27 @@ def create_file(remote_content_path, local_content_path):
                 data = {'main': content.get('main'), 'module': content.get('module')}
                 parent = '/'.join(remote_content_path.split('/')[:-1])
                 update_object(parent, data)
+    elif args.contents and file_id == '_folder.properties.json':
+        with open(local_content_path, encoding='utf-8') as source_file:
+            content = json.loads(source_file.read())
+            if 'data' in content:
+                parent = '/'.join(remote_content_path.split('/')[:-1])
+                update_object(parent, {"data": content["data"]})
     else:
-        save_object(remote_content_path, {
-            '@type': 'File',
-            'id': file_id,
-        })
-        upload_file(remote_content_path, local_content_path, file_id)
+        if args.contents and '.' not in file_id:
+            with open(local_content_path, encoding='utf-8') as source_file:
+                content = json.loads(source_file.read())
+                save_object(remote_content_path, {
+                    '@type': 'Content',
+                    'id': file_id,
+                    'data': content['data'],
+                })
+        else:
+            save_object(remote_content_path, {
+                '@type': 'File',
+                'id': file_id,
+            })
+            upload_file(remote_content_path, local_content_path, file_id)
 
 def upload_folder(path, root):
     create_folder(path)
@@ -124,9 +141,20 @@ def download_file(obj, root):
     with open(filepath, 'wb') as f:
         f.write(res.content)
 
+def download_folder_properties(path, root):
+    res = requests.get(
+        get_url(path) + "/@edit-data",
+        auth=AUTH,
+        verify=False)
+    filepath = os.path.join(root, path, "_folder.properties.json")
+    print("Saving " + filepath)
+    with open(filepath, 'wb') as f:
+        f.write(res.content)
+
 def download_folder(path, root):
     if not os.path.exists(path):
         os.makedirs(path)
+    download_folder_properties(path, root)
     res = requests.get(
         get_url(path) + "/@allfiles",
         headers={'Accept': 'application/json', 'Content-Type': 'application/json'},
@@ -155,6 +183,8 @@ parser.add_argument('--root', metavar='root', type=str,
                     help='path to local root for storage')
 parser.add_argument('--svelteOnly', action="store_true",
                     help='restrict to svelte files only')
+parser.add_argument('--contents', action="store_true",
+                    help='files without extension will be considered as contents')
 args = parser.parse_args()
 AUTH = tuple(args.auth.split(':'))
 if args.command == 'up':

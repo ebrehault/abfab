@@ -6,7 +6,7 @@
     export let componentPath;
     export let contentPath;
     const _componentPath = componentPath ? getRealPath(componentPath) : '';
-    let path = contentPath ? `${contentPath}?viewpath=${getCorePath(_componentPath)}&time=${timestamp}` : _componentPath;
+    let path = contentPath ? `${contentPath}?viewpath=${getCorePath(_componentPath)}&time=${new Date().toISOString()}` : _componentPath;
     let dataError = false;
 	let jsonData = '';
 	let iframe;
@@ -15,7 +15,7 @@
         try {
             const data = JSON.stringify(JSON.parse(value));
             path = `${_componentPath}?time=${timestamp}&content=${data}`;
-			dataError = false;
+            dataError = false;
         } catch(e) {
             dataError = true;
         }
