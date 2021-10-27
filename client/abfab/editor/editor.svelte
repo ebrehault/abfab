@@ -26,7 +26,8 @@
     let mode = 'edit';
     const subscriptions = [];
     subscriptions.push(derived(AbFabStore, (state) => state.query)
-    .subscribe(query => mode = (new URLSearchParams(query)).get('mode') || 'edit'));
+        .subscribe(query => mode = (new URLSearchParams(query)).get('mode') || 'edit'));
+    subscriptions.push(derived(AbFabStore, (state) => state.path).subscribe(() => properties = false));
     
     $: {
         const currentPath = location.pathname.replace('/@edit', '');
@@ -38,6 +39,7 @@
             contentPath = currentPath;
         } catch (e) {
             type = 'File';
+            contentPath = '';
         }
         if (type === 'File') {
             _content = content;

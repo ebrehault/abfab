@@ -24,7 +24,7 @@
 {#if item.children && item.expanded }
 <ul>
     {#each item.children as item}
-    <li><svelte:self {item}></svelte:self></li>
+    <li class:secondary={item.path.endsWith('.svelte.js')}><svelte:self {item}></svelte:self></li>
     {/each}
 </ul>
 {/if}

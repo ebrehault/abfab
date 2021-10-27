@@ -37,9 +37,9 @@ You can save it by pressing Ctrl/Cmd+S, or by clicking the checkmarck on the top
 
 When saving it, the AbFab online interface saves in the AbFab server the source code you have entered, but it also compiles it and saves the compiled version alongside.
 
-You can now preview the component in the online interface by clicking on the `Play` button on the top right corner.
+You can now preview the component in the online interface by clicking on the `Play` icon on the top right corner.
 
-Or you can just open it in your browser in a new tab: http://localhost/my-abfab/tutorial/hello.svelte
+Or you can click on the `Info` icon, where you get a link to open the component in a new tab: http://localhost/my-abfab/tutorial/hello.svelte
 
 Let's dig a bit into the code.
 
@@ -441,6 +441,89 @@ Let's create a typical CRUD (Create-Read-Update-Delete) application: a contact m
 First, create a folder named `crud`.
 
 Add a sub-folder named `contacts`, that is where contacts will be stored.
+
+In the `crud` folder, let's create a `edit.svelte` component providing a form to edit or create a contact:
+
+```html
+<script>
+    import { Content, navigateTo } from '/~/abfab/core.js';
+
+    export let content;
+    let { name, email } = content;
+
+    async function save() {
+        if (!email) return;
+        if (!content.email) {
+            await Content.create('/~/crud/contacts', email, { name, email });
+        } else {
+            await Content.update('', { name, email });
+        }
+        navigateTo(`/~/crud/list.svelte`);
+    }
+</script>
+<main>
+    <div>
+        <label>
+            <input bind:value="{name}" label="Name" placeholder="Enter the contact name" />
+            Name</label
+        >
+    </div>
+    <div>
+        <label>
+            <input bind:value="{email}" label="Email" placeholder="someone@mail.org" />
+            Email</label
+        >
+    </div>
+
+    <button on:click="{save}">Save</button>
+</main>
+```
+
+Let's go step by step:
+
+-   you use `core.js` which is the AbFab core library, in this case, it provides `Content`, the Content API to manipulate contents, and `navigateTo` which allows to go to a given path.
+-   you extract `name` and `email` from the current content (which will exist or not depending on you are editing an existing contact or just creating a new one)
+-   you implement the `save()` function, and that is where you use the `Content` API: if the current content already had an email, you do `Content.update` and if not, you do `Content.create` (the new content is created in the `/~/crud/contacts` folder and you use the email as an id for it)
+-   after saving, you redirect to the `list` component (see below)
+-   and then you have the actual HTML form, where you use `bind:value` to bind the input value to the corresponding variable.
+
+You can notice the `save` function is marked as `async`. That is because you are using the `Content` API which is making HTTP calls to the server. All the `Content` API calls are prefixed with `await`. It means the browser will wait until the call is done to continue with the rest of the code.
+
+Ok now you need to create the `list` component, which will display all the existing contacts:
+
+```html
+<script>
+    import {onMount} from 'svelte';
+    import { Content } from '/~/abfab/core.js';
+    import { navigateTo } from '/~/abfab/core.js';
+
+    let contacts = [];
+    onMount(async () => {
+        contacts = await Content.folderContents('/~/crud/contacts');
+    })
+
+    async function deleteContact(path) {
+        await Content.delete(path);
+        contacts = contacts.filter(c => c.path !== path);
+    }
+</script>
+<table>
+    <tr>
+        <th>Name</th><th>Email</th>
+        <th><button on:click={() => navigateTo('/~/crud/edit.svelte')}>+</button></th>
+    </tr>
+    {#each contacts as contact}
+    <tr>
+        <td>{contact.data.name}</td>
+        <td>{contact.data.email}</td>
+        <td>
+            <button on:click={() => navigateTo(contact.path)}>Edit</button>
+            <button on:click={() => deleteContact(contact.path)}>Delete</button>
+        </td>
+    </tr>
+    {/each}
+</table>
+```
 
 ## Using external libraries
 
