@@ -489,13 +489,14 @@ Let's go step by step:
 
 You can notice the `save` function is marked as `async`. That is because you are using the `Content` API which is making HTTP calls to the server. All the `Content` API calls are prefixed with `await`. It means the browser will wait until the call is done to continue with the rest of the code.
 
+Go to the folder properties and define `./edit.svelte` as default view (not: it can be done on `/~/crud/contacts` but it can also be done on `/~/crud` because view definitions are inherited).
+
 Ok now you need to create the `list` component, which will display all the existing contacts:
 
 ```html
 <script>
-    import {onMount} from 'svelte';
-    import { Content } from '/~/abfab/core.js';
-    import { navigateTo } from '/~/abfab/core.js';
+    import { onMount } from 'svelte';
+    import { Content, navigateTo } from '/~/abfab/core.js';
 
     let contacts = [];
     onMount(async () => {
@@ -525,7 +526,78 @@ Ok now you need to create the `list` component, which will display all the exist
 </table>
 ```
 
+Here you use the Svelte function `onMount`, it allows to run some code at the time the component is created. In thsi case, you make a call to the `Content` API to collect all the existing contacts stored in `/~/crud/contacts`.
+
+And you implement the `deleteContact` function which uses `Content.delete` to remove the contact, and then remove the corresponding entry from the displayed list.
+
+Actually, that's maybe not that smart, if any action meant to change the data is also responsible to update the UI, it will get messy pretty fast.
+
+Let's create a `refresh` function that will be called everytime you need:
+
+```js
+onMount(async () => await refresh());
+
+async function refresh() {
+    contacts = await Content.folderContents('/~/crud/contacts');
+}
+
+async function deleteContact(path) {
+    await Content.delete(path);
+    await refresh();
+}
+```
+
+Note: in the `edit` component, you have implement the Save button click with `on:click={save}`, but here the Delete button for example uses `on:click={() => deleteContact(contact.path)}`.
+An event handler needs a function (not a function call), so passing `on:click={deleteContact(contact.path)}` would not work, that's why you have to create a function that will make the call to `deleteContact` (and the arrow syntax `() => {}` is very handy in that case).
+
 ## Using external libraries
+
+External libraries can be used in any AbFab component. You need to import their ESM version.
+
+Here is an example using Chart.js:
+
+```html
+<script>
+    import { onMount } from 'svelte';
+    import { Chart, registerables } from 'https://unpkg.com/chart.js@3.6.0/dist/chart.esm.js';
+    Chart.register(...registerables);
+
+    const labels = ['January', 'February', 'March', 'April', 'May', 'June'];
+    const data = {
+        labels: labels,
+        datasets: [
+            {
+                label: 'Extra weight caused by lockdown',
+                backgroundColor: 'rgb(255, 99, 132)',
+                borderColor: 'rgb(255, 99, 132)',
+                data: [0, 10, 5, 2, 20, 30, 45],
+            },
+        ],
+    };
+    const config = {
+        type: 'line',
+        data: data,
+        options: {},
+    };
+    let myChart;
+    onMount(() => new Chart(myChart, config));
+</script>
+<div>
+    <canvas bind:this="{myChart}"></canvas>
+</div>
+<style>
+    canvas {
+        max-height: 100vh;
+        max-width: 100vw;
+    }
+</style>
+```
+
+Note: as you can see, Chart.js has been directly imported from a remote location (https://unpkg.com), but in some cases (intranets with internet access restriction for example), you might prefer to serve them directly from AbFab. AbFab contains a `lib` folder dedicated to librairies, by default it only contains the Svelte library, but you are free to create a new folder named `chart.js` and upload the `chart.esm.js` file in this folder. Then you can import it as follow:
+
+```js
+import { Chart, registerables } from '/~/chart.js/chart.esm.js';
+```
 
 ## Publishing components
 
