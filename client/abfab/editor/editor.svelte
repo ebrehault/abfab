@@ -36,7 +36,6 @@
             obj = JSON.parse(content);
             type = obj.type_name;
             viewComponent = obj.view;
-            contentPath = currentPath;
         } catch (e) {
             type = 'File';
             contentPath = '';
@@ -46,6 +45,7 @@
             viewComponent = currentPath;
         } else if (type === 'Content' || type === 'Directory') {
             _content = JSON.stringify(obj.data || {});
+            contentPath = currentPath;
         }
     }
     $: hasError = !!error || warnings.length > 0;
@@ -120,25 +120,25 @@
     <img src="/~/abfab/abfab.svg" alt="AbFab logo" />
     <ul>
         <li>
-            <AFButton kind="primary" aspect="basic" icon="check" label="Save" size="small"
-                on:click={triggerSave}/>
+            <AFButton kind="primary" aspect="basic" icon="check" size="small"
+                on:click={triggerSave}>Save</AFButton>
         </li>
         {#if type !== 'Directory' && play}
             <li>
-                <AFButton aspect="basic" icon="refresh" label="Refresh" size="small"
-                    on:click={refreshViewer}/>
+                <AFButton aspect="basic" icon="refresh" size="small"
+                    on:click={refreshViewer}>Refresh</AFButton>
             </li>
         {/if}
         {#if type !== 'Directory'}
         <li>
-            <AFButton kind="primary" aspect="basic" icon="play" label="Play" size="small" active={play}
-            on:click={togglePlay}/>
-        </li>
-        <li>
-            <AFButton kind="primary" aspect="basic" icon="info" label="Play" size="small" active={properties}
-            on:click={toggleProperties}/>
+            <AFButton kind="primary" aspect="basic" icon="play" size="small" active={play}
+            on:click={togglePlay}>Play</AFButton>
         </li>
         {/if}
+        <li>
+            <AFButton kind="primary" aspect="basic" icon="info" size="small" active={properties}
+            on:click={toggleProperties}>Play</AFButton>
+        </li>
     </ul>
 </header>
 <main>
@@ -146,7 +146,7 @@
     {#if $showNavigation}
     <Navigation></Navigation>
     {/if}
-    <div class="editor-container {play ? 'half' : ''}" class:with-nav={$showNavigation} class:has-error={hasError}>
+    <div class="editor-container {play || properties ? 'half' : ''}" class:with-nav={$showNavigation} class:has-error={hasError}>
         {#if type === 'Directory' && mode === 'add'}
             <div class="add-container">
                 <Add></Add>
@@ -160,8 +160,8 @@
         {#if hasError }
             <div class="errors-container">
                 <span class="discard-button">
-                    <AFButton aspect="solid" icon="cross" label="Discard" size="small"
-                        on:click={discardErrors}/>
+                    <AFButton aspect="solid" icon="cross" size="small"
+                        on:click={discardErrors}>Discard</AFButton>
                 </span>
                 <div class="errors">
                     {#if error} <div class="error">{error.message}<code>{error.frame}</code></div>{/if}

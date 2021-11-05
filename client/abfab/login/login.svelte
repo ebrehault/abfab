@@ -34,7 +34,7 @@
     <div class="message">
         {error}
     </div>
-    <AFButton kind="primary" label="Login" on:click={login}></AFButton>
+    <AFButton kind="primary" on:click={login}>Login</AFButton>
 </main>
 <style>
     main {

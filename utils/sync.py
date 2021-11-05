@@ -4,8 +4,6 @@ import json
 import logging
 import argparse
 
-# GUILLOTINA_CONTAINER_ROOT = 'http://abfab:8080/db/app/'
-# GUILLOTINA_CONTAINER_ROOT = 'http://localhost:8080/db/my-app/'
 
 def get_url(path):
     if path[0] != '/':
@@ -176,7 +174,7 @@ parser.add_argument('command', metavar='command', type=str,
 parser.add_argument('path', metavar='path', type=str,
                     help='path of the folder to sync')
 parser.add_argument('--host', metavar='host', type=str,
-                    help='AbFab host (e.g. http://abfab:8080/db/app/)')
+                    help='AbFab host (e.g. http://abfab:8080/db/app)')
 parser.add_argument('--auth', metavar='auth', type=str,
                     help='username:password')
 parser.add_argument('--root', metavar='root', type=str,

@@ -50,7 +50,7 @@
                 placeholder={type === 'Directory' ? 'my-folder' : type === 'File' ? 'my-file.svelte' : 'my-content'}
                 required></AFInput>
             <div>
-                <AFButton size="small" kind="primary" label="Add" on:click={add}></AFButton>
+                <AFButton size="small" kind="primary" on:click={add}>Add</AFButton>
             </div>
         </div>
     </div>

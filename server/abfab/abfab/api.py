@@ -3,8 +3,9 @@ from guillotina.component import get_multi_adapter
 from guillotina.behaviors.attachment import IAttachment
 from guillotina.api.content import DefaultGET
 from guillotina.response import HTTPFound, Response
+from guillotina.exceptions import Unauthorized
 from guillotina.interfaces import IFileManager, IContainer
-from guillotina.utils import get_current_container, navigate_to, get_object_url, get_content_path, get_registry
+from guillotina.utils import get_current_container, navigate_to, get_object_url, get_content_path, get_registry, get_security_policy
 from abfab.content import IFile, IDirectory, IContent, IAbFabEditable, IAbFabRegistry
 from urllib.parse import urlparse
 from pathlib import PurePath
@@ -34,6 +35,11 @@ async def get_last_modified():
         return "0"
     return config["lastFileChange"] or "0"
 
+def check_permission(obj):
+    policy = get_security_policy()
+    if not policy.check_permission("guillotina.ViewContent", obj):
+        raise Unauthorized("Cannot access content")
+
 async def view_source(context, request, content_type=None):
     behavior = IAttachment(context)
     await behavior.load(create=False)
@@ -46,7 +52,8 @@ async def wrap_component(request, js_component, path_to_content, type='json'):
     get_content = ""
     if path_to_content:
         path_to_content = (path_to_content.startswith('/') and "/~" + path_to_content) or path_to_content
-        get_content = """let response = await fetch('{path_to_content}');
+        get_content = """import {{API}} from '/~/abfab/core.js';
+    let response = await API.fetch('{path_to_content}');
     let content = await response.{type}();
     """.format(path_to_content=path_to_content, type=type)
     else:
@@ -106,7 +113,7 @@ async def get_index(context, request):
             return HTTPFound(path + 'index.js')
 
 @configure.service(context=IDirectory, method='GET',
-                   permission='guillotina.Public', allow_access=True)
+                   permission='guillotina.ViewContent', allow_access=True)
 async def get_directory(context, request):
     return await get_index(context, request)
 
@@ -122,6 +129,7 @@ async def get_view_or_data(context, request):
             else:
                 view_path = get_view_by_name(view_name or 'view', context)
         if not view_path:
+            check_permission(context)
             return context.data
         if view_path.endswith('.svelte'):
             view_path += '.js'
@@ -131,8 +139,10 @@ async def get_view_or_data(context, request):
         if view.content_type == "application/javascript" or view.id.endswith('.svelte'):
             return await wrap_component(request, view, './' + context.id)
         else:
+            check_permission(context)
             return await view_source(view, request)
     else:
+        check_permission(context)
         return context.data
 
 @configure.service(context=IAbFabEditable, method='GET', name='@edit',
@@ -144,12 +154,12 @@ async def run_editor(context, request):
     return await wrap_component(request, editor_view, './@edit-data', 'text')
 
 @configure.service(context=IFile, method='GET', name='@edit-data',
-                   permission='guillotina.Public', allow_access=True)
+                   permission='guillotina.ViewContent', allow_access=True)
 async def get_editable_file(context, request):
     return await view_source(context, request, content_type="text/plain")
 
 @configure.service(context=IDirectory, method='GET', name='@allfiles',
-                   permission='guillotina.Public', allow_access=True)
+                   permission='guillotina.AccessContent', allow_access=True)
 async def get_all_files(context, request):
     children = []
     async for _, obj in context.async_items():
@@ -160,9 +170,9 @@ async def get_all_files(context, request):
     return children
 
 @configure.service(context=IDirectory, method='GET', name='@tree',
-                   permission='guillotina.Public', allow_access=True)
+                   permission='guillotina.AccessContent', allow_access=True)
 @configure.service(context=IContainer, method='GET', name='@tree',
-                   permission='guillotina.Public', allow_access=True)
+                   permission='guillotina.AccessContent', allow_access=True)
 async def get_tree(context, request, depth=3):
     children = []
     depth = depth - 1
@@ -177,7 +187,7 @@ async def get_tree(context, request, depth=3):
     return children
 
 @configure.service(context=IDirectory, method='GET', name='@contents',
-                   permission='guillotina.Public', allow_access=True)
+                   permission='guillotina.AccessContent', allow_access=True)
 async def get_contents(context, request):
     children = []
     async for _, obj in context.async_items():
@@ -187,9 +197,9 @@ async def get_contents(context, request):
     return children
 
 @configure.service(context=IContent, method='GET', name='@basic',
-                   permission='guillotina.Public', allow_access=True)
+                   permission='guillotina.ViewContent', allow_access=True)
 @configure.service(context=IContent, method='GET', name='@edit-data',
-                   permission='guillotina.Public', allow_access=True)
+                   permission='guillotina.ViewContent', allow_access=True)
 async def get_content_basic(context, request):
     view_name = request.query.get('view')
     if not view_name and context.view:
@@ -204,7 +214,7 @@ async def get_content_basic(context, request):
     }
 
 @configure.service(context=IDirectory, method='GET', name='@edit-data',
-                   permission='guillotina.Public', allow_access=True)
+                   permission='guillotina.ViewContent', allow_access=True)
 async def get_directory_edit_data(context, request):
     return {
         "type_name": context.type_name,
@@ -213,7 +223,7 @@ async def get_directory_edit_data(context, request):
     }
 
 @configure.service(context=IContainer, method='GET', name='@edit-data',
-                   permission='guillotina.Public', allow_access=True)
+                   permission='guillotina.ViewContent', allow_access=True)
 async def get_root_edit_data(context, request):
     return {
         "type_name": "Directory",
@@ -222,14 +232,14 @@ async def get_root_edit_data(context, request):
     }
 
 @configure.service(context=IDirectory, method='GET', name='@basic',
-                   permission='guillotina.Public', allow_access=True)
+                   permission='guillotina.ViewContent', allow_access=True)
 @configure.service(context=IFile, method='GET', name='@basic',
-                   permission='guillotina.Public', allow_access=True)
+                   permission='guillotina.ViewContent', allow_access=True)
 async def get_basic(context, request):
     return {"type": context.type_name, "path": get_content_path(context)}
 
 @configure.service(context=IDirectory, method='GET', name='@default',
-                   permission='guillotina.Public', allow_access=True)
+                   permission='guillotina.ViewContent', allow_access=True)
 @configure.service(context=IContent, method='GET', name='@default',
                    permission='guillotina.ViewContent', allow_access=True)
 @configure.service(context=IFile, method='GET', name='@default',

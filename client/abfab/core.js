@@ -69,7 +69,6 @@ export const API = {
                                 return auth.json();
                             } else {
                                 redirectToLogin();
-                                throw new Error('Redirecting to login');
                             }
                         })
                         .then((data) => localStorage.setItem('auth', data.token))
@@ -83,6 +82,8 @@ export const API = {
         });
     },
 };
+const ANONYMOUS = 'Anonymous User';
+const READER = 'guillotina.Reader';
 export const Content = {
     get: async (path) => {
         const content = await API.get(getRealPath(path));
@@ -101,5 +102,23 @@ export const Content = {
     folderContents: async (path) => {
         const folder = await API.get(getRealPath(path) + '/@contents');
         return folder.json();
+    },
+    share: (path, setting) => {
+        // setting: Allow, Deny, Unset
+        const body = JSON.stringify({
+            prinrole: [{ principal: ANONYMOUS, role: READER, setting }],
+        });
+        return API.post(getRealPath(path) + '/@sharing', body);
+    },
+    status: async (path) => {
+        const sharing = await (await API.get(getRealPath(path) + '/@sharing')).json();
+        const localRole = sharing.local.prinrole[ANONYMOUS];
+        if (!!localRole && !!localRole[READER]) {
+            return { published: localRole[READER] === 'Allow', inherit: false };
+        }
+        const inherited = sharing.inherit.find(
+            (item) => !!item.prinrole[ANONYMOUS] && !!item.prinrole[ANONYMOUS][READER],
+        );
+        return { published: !!inherited && inherited.prinrole[ANONYMOUS][READER] === 'Allow', inherit: true };
     },
 };

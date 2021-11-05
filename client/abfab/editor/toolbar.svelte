@@ -1,10 +1,9 @@
 <script>
     import AFButton from '/~/abfab/ui/button.svelte';
+    import AFDropdown from '/~/abfab/ui/dropdown.svelte';
     import {AbFabStore} from '../core.js';
     import {EditorStore} from './editor.js';
-    import { clickOutside } from '/~/abfab/ui/clickOutside.js';
-
-    let showMore = false;
+ 
     let showNavigation = false;
 
     function logout() {
@@ -28,22 +27,18 @@
 <nav>
     <ul>
         <li>
-            <AFButton kind="primary" aspect="basic" icon="folder" label="Explore" size="small"
-                      active={showNavigation} on:click={toggleNavigation} />
+            <AFButton kind="primary" aspect="basic" icon="folder" size="small"
+                      active={showNavigation} on:click={toggleNavigation}>Explore</AFButton>
         </li>
         <li>
-            <AFButton kind="primary" aspect="basic" icon="search" label="Search" size="small" />
+            <AFButton kind="primary" aspect="basic" icon="search" size="small">Search</AFButton>
         </li>
         <li class="more-button">
-            <AFButton kind="primary" aspect="basic" icon="more-horizontal" label="Settings" size="small"
-                on:click={() => showMore = !showMore}/>
-            {#if showMore}
-            <div class="menu" use:clickOutside on:clickoutside={() => showMore = false}>
-                <div on:click={logout}>
+            <AFDropdown label="Settings" toTop={true}>
+                <div class="menu-item" on:click={logout}>
                     Log out
                 </div>
-            </div>
-            {/if}
+            </AFDropdown>
         </li>
     </ul>
 </nav>
@@ -65,20 +60,13 @@
     }
     .more-button {
         margin-top: auto;
-    }
-    .menu {
         position: absolute;
-        bottom: 3em;
-        left: 0.5em;
-        width: 10em;
-        background-color: var(--color-neutral-primary-lightest);
-        z-index: 400;
-        box-shadow: 0 1px 0.5rem rgb(2 19 34 / 12%), 0 0 0.25rem rgb(2 19 34 / 10%);
-        border-radius: .125rem;
-        text-align: left;
+  		bottom: 0em;
+    	left: 0.75em;
     }
-    .menu div {
+    .menu-item {
         padding: 0.25em 1em;
+        width: 10em;
         cursor: pointer;
     }
 </style>

@@ -422,7 +422,7 @@ Now you can use the UI components, for example, let's modify `favorite.svelte` a
 </script>
 <div>
     Is favorite: {favorite}
-    <AFButton size="small" kind="primary" label="{label}" on:click="{toggleFavorite}"></AFButton>
+    <AFButton size="small" kind="primary" on:click="{toggleFavorite}">{label}</AFButton>
 </div>
 ```
 
@@ -599,7 +599,17 @@ Note: as you can see, Chart.js has been directly imported from a remote location
 import { Chart, registerables } from '/~/chart.js/chart.esm.js';
 ```
 
-## Publishing components
+## Publishing content
+
+In AbFab, component are always publicly accessible. But contents can be restricted.
+
+When going to the Info panel, you can see the current status of a given content.
+
+It can be either "Published" or "Private" and it can be a local status or it can be inherited from its containing directory.
+
+By clicking on the pencil icon, you can change the status or reset it so it restaore the inherited status.
+
+When a publication status is applied on a directory, it will apply on all the contents it contains as direct children or as gran-children. It does not apply to components though.
 
 ## The Data API
 

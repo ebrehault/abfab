@@ -4,6 +4,14 @@
 
 A web application publication environment
 
+# Why? What for?
+
+The main objective behind AbFab is to provide a way to make frontend easy, fun, and pleasant.
+
+It is not meant to be a gigantic framework covering thousands of use cases. It targets small features that could probably be implemented in more classical ways, but you just do not want to deploy too many things (like a database, a bunch of backend endpoints, a security layer, a frontend app, etc.), or maybe you do not want to pollute your existing stack with extra dependencies just to achieve a small widget in one given page of your entire app.
+
+AbFab is an all-in-one platform allowing to develop simple frontend components that can be published anywhere.
+
 ## Principles
 
 -   Client-side technics do improve the user experience, nevertheless they should not damage the developer experience.
@@ -45,4 +53,6 @@ Regarding backend, deployment and setup is entirely performed using Docker. No D
 
 **Client-side navigation**: Navigation from one page to another is performed by loading only the missing data and the application renders it on the client-side, so the application is always fast.
 
-## Complex things must be possible
+## License
+
+AbFab is released under the BSD-2 license.

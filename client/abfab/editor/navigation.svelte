@@ -22,9 +22,9 @@
 </script>
 <div class="navigation">
     <ul class="toolbar">
-        <li><AFButton kind="primary" aspect="basic" icon="plus" label="Add" size="small" on:click={addInCurrentFolder}/></li>
-        <li><AFButton kind="primary" aspect="basic" icon="trash" label="Remove" size="small" on:click={deleteSelected}/></li>
-        <li><AFButton kind="primary" aspect="basic" icon="refresh" label="Refresh" size="small" on:click={refresh}/></li>
+        <li><AFButton kind="primary" aspect="basic" icon="plus" size="small" on:click={addInCurrentFolder}>Add</AFButton></li>
+        <li><AFButton kind="primary" aspect="basic" icon="trash" size="small" on:click={deleteSelected}>Remove</AFButton></li>
+        <li><AFButton kind="primary" aspect="basic" icon="refresh" size="small" on:click={refresh}>Refresh</AFButton></li>
     </ul>
     <nav>
         <ul>
