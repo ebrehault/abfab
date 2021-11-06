@@ -1,5 +1,7 @@
 # AbFab
 
+[![Build Status](https://github.com/ebrehault/abfab/workflows/CI/badge.svg)](https://github.com/ebrehault/abfab/actions?query=workflow%3ACI)
+
 A web application publication environment
 
 ## Principles

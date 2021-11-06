@@ -9,4 +9,8 @@ __pycache__
 g.db
 g.db.blobs
 *.svelte.js
+!server/abfab/abfab/tests/*.svelte.js
 .env
+.coverage
+.pytest_cache
+htmlcov
