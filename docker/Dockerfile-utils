@@ -1,7 +1,8 @@
-FROM nikolaik/python-nodejs:python3.9-nodejs16
+FROM nikolaik/python-nodejs:python3.9-nodejs17-alpine
 
 WORKDIR /app
 ADD . .
+RUN apk add --no-cache curl
 RUN npm install svelte@3.38.3
 RUN cp -r node_modules libs
 RUN pip install requests

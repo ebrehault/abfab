@@ -1,6 +1,6 @@
 services:
     reverse-proxy:
-        image: nginx
+        image: nginx:alpine
         volumes:
             - ./nginx-local.conf:/etc/nginx/nginx.conf
         ports:
@@ -8,7 +8,7 @@ services:
         links:
             - abfab
     postgres:
-        image: postgres:10
+        image: postgres:10-alpine
         environment:
             POSTGRES_DB: guillotina
             POSTGRES_USER: guillotina
