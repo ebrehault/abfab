@@ -5,8 +5,9 @@ services:
             - ./nginx-local.conf:/etc/nginx/nginx.conf
         ports:
             - 80:80
-        links:
+        depends_on:
             - abfab
+            - abfab-utils
     postgres:
         image: postgres:10-alpine
         environment:
@@ -23,13 +24,17 @@ services:
             - 8080:8080
         volumes:
             - ./config.yaml:/app/config.yaml
-        links:
+        depends_on:
             - postgres
     abfab-utils:
+        container_name: abfab-utils
         build:
             context: ..
             dockerfile: docker/Dockerfile-utils
         command: sh utils/init.sh abfab root
-        links:
+        volumes:
+            - ../tmp:/app/src
+            - .env:/app/utils/.env
+        depends_on:
             - postgres
             - abfab

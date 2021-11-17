@@ -607,20 +607,79 @@ When going to the Info panel, you can see the current status of a given content.
 
 It can be either "Published" or "Private" and it can be a local status or it can be inherited from its containing directory.
 
-By clicking on the pencil icon, you can change the status or reset it so it restaore the inherited status.
+By clicking on the pencil icon, you can change the status or reset it so it restore the inherited status.
 
 When a publication status is applied on a directory, it will apply on all the contents it contains as direct children or as gran-children. It does not apply to components though.
 
-## The Data API
+## Developing with an IDE
 
-## Developing locally with an IDE
+Developing from the AbFab online interface is definitely nice to start using AbFab or to make a quick fix.
 
-TBD
+And while it is totally OK to work only from this UI if that's good enough for you, most developers will prefer working in their favorite IDE.
+
+### Using a local AbFab server
+
+Let's imagine you are developing your AbFab app in a folder named `my-app`.
+
+If you have deployed AbFab on your local machine (see [Deploy AbFab locally](./deploy.md#deploy-locally), you can write code in your favorite IDE and push it on the local server using the following command:
 
 ```sh
-docker run --rm -v /<absolute_path>/tutorial:/app/tutorial ebrehault/abfab-utils python utils/sync.py down tutorial --auth root:<password> --host https://demo.abfab.dev/somepath --root . --contents
+docker run --rm -v /<absolute_path_to>/my-app:/app/my-app ebrehault/abfab-utils python utils/sync.py up my-app --local
 ```
 
+And if you make some changes through the online interface, you can retrieve them in your local folder by doing:
+
 ```sh
-docker run --rm -v /<absolute_path>/tutorial:/app/tutorial ebrehault/abfab-utils python utils/sync.py up tutorial --auth root:<password> --host https://demo.abfab.dev/somepath/ --root . --contents
+docker run --rm -v /<absolute_path_to>/my-app:/app/my-app ebrehault/abfab-utils python utils/sync.py pull my-app --local
 ```
+
+These two commands will only process sources (svelte, css, js, etc.) and will not process any contents.
+
+If you want to sync the contents too, use the `--contents` flag. With this flag, any resource having no `.` character in its name will be considered as a content.
+
+### Using a remote AbFab server
+
+If you have deployed AbFab on a remote machine (see [Deploy AbFab in production](./deploy.md#deploy-in-production), you can also use the sync utility you have used locally, you just need to add the host and the auth parameters:
+
+```sh
+docker run --rm -v /<absolute_path_to>/my-app:/app/my-app ebrehault/abfab-utils python utils/sync.py pull my-app --host https://my-domain/abfab-path --auth root:my-password
+```
+
+### Deploy automatically from GitHub
+
+Instead of deploying manually to your production server using the sync utility, you can also deploy automatically by pushing your code to GitHub.
+
+Follow these steps:
+
+-   create an access token on GitHub: go to `https://github.com/settings/tokens` and create a new token with the `repo` and `workflow` scopes
+-   connect to your prod server and go to the folder where you have your AbFab setup (where you have your `nginx.conf`, `docker-compose.yml`, etc.), create a `src` folder and checkout your git repository using your access token:
+
+```sh
+mkdir src
+cd src
+git clone https://<access_token>:/my-github-org/my-app.git
+```
+
+So now you have the content of your repository in the `src/my-app` folder.
+
+-   in your git repository, configure GitHub Actions to call the AbFab webhook: create a file at `.github/workflows/abfab.yml` and add the following content:
+
+```yaml
+on:
+    push:
+        branches:
+            - main
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Call AbFab webhook
+              uses: distributhor/workflow-webhook@v2
+              env:
+                  webhook_url: 'https://my-domain/_utils/pull/my-app'
+                  webhook_secret: 'no-secret'
+```
+
+Then, everytime you push to your repository in the `main` branch, the webhook will be called and the code will be deployed on your production server.
+
+If you had made some changes from the AbFab online interface, they will be committed and pushed to a branch named `abfab-online-backup` in your repository before the `main` branch is deployed. That way, you will never lose any changes.

@@ -11,3 +11,6 @@ if [ $response != '200' ]; then
     python utils/sync.py up abfab --auth root:$PASSWORD --root ./client --host http://$HOST:8080/db/app
     curl -i -X POST http://$HOST:8080/db/app/abfab/@sharing -H 'Accept: application/json' -H 'Content-Type: application/json' --data-raw '{"prinrole": [{"principal": "Anonymous User", "role": "guillotina.Reader", "setting": "AllowSingle"}]}' --user root:$PASSWORD
 fi
+
+cd utils
+flask run --host=0.0.0.0

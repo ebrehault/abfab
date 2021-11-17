@@ -14,3 +14,4 @@ g.db.blobs
 .coverage
 .pytest_cache
 htmlcov
+/tmp

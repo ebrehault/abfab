@@ -6,8 +6,9 @@ services:
             - /etc/letsencrypt/live/<your-domain>:/ssl
         ports:
             - 443:443
-        links:
+        depends_on:
             - abfab
+            - abfab-utils
     postgres:
         image: postgres:10-alpine
         environment:
@@ -20,11 +21,15 @@ services:
         command: sh -c 'sleep 5 && guillotina --override="root_user.password=${PASSWORD}" --override="jwt.secret=${JWT_SECRET}" --override="databases.db.dsn=postgresql://guillotina:${POSTGRES_PASSWORD}@postgres:5432/guillotina"'
         volumes:
             - ./config.yaml:/app/config.yaml
-        links:
+        depends_on:
             - postgres
     abfab-utils:
+        container_name: abfab-utils
         image: ebrehault/abfab-utils:latest
         command: sh utils/init.sh abfab ${PASSWORD}
-        links:
+        volumes:
+            - ./src:/app/src
+            - .env:/app/utils/.env
+        depends_on:
             - postgres
             - abfab

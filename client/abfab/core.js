@@ -74,7 +74,7 @@ export const API = {
                         .then((data) => localStorage.setItem('auth', data.token))
                         .then(() => fetch(path, params));
                 } else {
-                    return res;
+                    redirectToLogin();
                 }
             } else {
                 return res;

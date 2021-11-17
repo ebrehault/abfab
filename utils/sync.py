@@ -4,11 +4,18 @@ import json
 import logging
 import argparse
 
+IGNORE = [
+    '.DS_Store',
+    '.git',
+    '.gitignore',
+    'package-lock.json',
+]
 
 def get_url(path):
+    host = args.host or (args.local and "http://abfab:8080/db/app")
     if path[0] != '/':
         path = '/' + path
-    return args.host + path
+    return host + path
 
 def get_parent_url(path):
     return '/'.join(get_url(path).split('/')[:-1]) + '/'
@@ -75,8 +82,6 @@ def create_folder(path):
 
 def create_file(remote_content_path, local_content_path):
     file_id = remote_content_path.split('/')[-1]
-    if file_id == '.DS_Store':
-        return
     if file_id == 'package.json':
         with open(local_content_path, encoding='utf-8') as source_file:
             content = json.loads(source_file.read())
@@ -110,6 +115,8 @@ def upload_folder(path, root):
     create_folder(path)
     local_path = os.path.join(root, path)
     for content in os.listdir(local_path):
+        if content in IGNORE:
+            continue
         local_content_path = os.path.join(local_path, content)
         remote_content_path = os.path.join(path, content)
         if os.path.isdir(local_content_path):
@@ -183,10 +190,13 @@ parser.add_argument('--svelteOnly', action="store_true",
                     help='restrict to svelte files only')
 parser.add_argument('--contents', action="store_true",
                     help='files without extension will be considered as contents')
+parser.add_argument('--local', action="store_true",
+                    help='use default settings for local server')
 args = parser.parse_args()
-AUTH = tuple(args.auth.split(':'))
+auth = args.auth or (args.local and 'root:root')
+AUTH = tuple(auth.split(':'))
 if args.command == 'up':
-    folder_path = os.path.join(args.root, args.path)
+    folder_path = os.path.join(args.root or '.', args.path)
     compile_svelte(folder_path)
     if not args.svelteOnly:
         delete_remote(args.path)
