@@ -4,11 +4,13 @@ from guillotina.behaviors.attachment import IAttachment
 from guillotina.api.content import DefaultGET
 from guillotina.response import HTTPFound, Response
 from guillotina.exceptions import Unauthorized
-from guillotina.interfaces import IFileManager, IContainer
+from guillotina.interfaces import IFileManager, IContainer, IPrincipalRoleMap
 from guillotina.utils import get_current_container, navigate_to, get_object_url, get_content_path, get_registry, get_security_policy
 from abfab.content import IFile, IDirectory, IContent, IAbFabEditable, IAbFabRegistry
 from urllib.parse import urlparse
 from pathlib import PurePath
+
+ANONYMOUS_USER_ID = "Anonymous User"
 
 def get_view_by_name(name, content):
     parent = content.__parent__
@@ -40,6 +42,16 @@ def check_permission(obj):
     if not policy.check_permission("guillotina.ViewContent", obj):
         raise Unauthorized("Cannot access content")
 
+def get_status(context):
+    status = None
+    prinrole = IPrincipalRoleMap(context)._bycol
+    if prinrole.get(ANONYMOUS_USER_ID) and prinrole[ANONYMOUS_USER_ID].get("guillotina.Reader"):
+        if prinrole[ANONYMOUS_USER_ID]["guillotina.Reader"].get_name() == "Allow":
+            status = "public"
+        else:
+            status = "private"
+    return status
+
 async def view_source(context, request, content_type=None):
     behavior = IAttachment(context)
     await behavior.load(create=False)
@@ -52,10 +64,14 @@ async def wrap_component(request, js_component, path_to_content, type='json'):
     get_content = ""
     if path_to_content:
         path_to_content = (path_to_content.startswith('/') and "/~" + path_to_content) or path_to_content
-        get_content = """import {{API}} from '/~/abfab/core.js';
+        get_content = """import {{API, redirectToLogin}} from '/~/abfab/core.js';
+let content;
+try {{
     let response = await API.fetch('{path_to_content}');
-    let content = await response.{type}();
-    """.format(path_to_content=path_to_content, type=type)
+    content = await response.{type}();
+}} catch (e) {{
+    redirectToLogin();
+}}""".format(path_to_content=path_to_content, type=type)
     else:
         content = request.query.get('content', {})
         get_content = """let content = {content}""".format(content=content)
@@ -210,6 +226,7 @@ async def get_content_basic(context, request):
         "type_name": context.type_name,
         "path": get_content_path(context),
         "view": view_path,
+        "status": get_status(context),
         "data": context.data,
     }
 
@@ -219,6 +236,7 @@ async def get_directory_edit_data(context, request):
     return {
         "type_name": context.type_name,
         "path": get_content_path(context),
+        "status": get_status(context),
         "data": context.data,
     }
 
@@ -234,7 +252,7 @@ async def get_root_edit_data(context, request):
 @configure.service(context=IDirectory, method='GET', name='@basic',
                    permission='guillotina.ViewContent', allow_access=True)
 @configure.service(context=IFile, method='GET', name='@basic',
-                   permission='guillotina.ViewContent', allow_access=True)
+                   permission='guillotina.Public', allow_access=True)
 async def get_basic(context, request):
     return {"type": context.type_name, "path": get_content_path(context)}
 
@@ -243,7 +261,7 @@ async def get_basic(context, request):
 @configure.service(context=IContent, method='GET', name='@default',
                    permission='guillotina.ViewContent', allow_access=True)
 @configure.service(context=IFile, method='GET', name='@default',
-                   permission='guillotina.ViewContent', allow_access=True)
+                   permission='guillotina.Public', allow_access=True)
 async def get_default(context, request):
     get = DefaultGET(context, request)
     return await get()

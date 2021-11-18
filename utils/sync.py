@@ -5,9 +5,6 @@ import logging
 import argparse
 
 IGNORE = [
-    '.DS_Store',
-    '.git',
-    '.gitignore',
     'package-lock.json',
 ]
 
@@ -73,6 +70,13 @@ def upload_file(remote_content_path, local_content_path, file_id):
             offset += CHUNK_SIZE
             chunk = source_file.read(CHUNK_SIZE)
 
+def publish_object(path, status):
+    mapping = {"public": "Allow", "private": "Deny"}
+    if status in mapping:
+        requests.post(get_url(path) + '/@sharing', auth=AUTH, verify=False, json={
+            "prinrole": [{ "principal": "Anonymous User", "role": "guillotina.Reader", "setting": mapping[status] }],
+        })
+
 def create_folder(path):
     file_id = path.split('/')[-1]
     save_object(path, {
@@ -92,8 +96,10 @@ def create_file(remote_content_path, local_content_path):
     elif args.contents and file_id == '_folder.properties.json':
         with open(local_content_path, encoding='utf-8') as source_file:
             content = json.loads(source_file.read())
+            parent = '/'.join(remote_content_path.split('/')[:-1])
+            if 'status' in content:
+                publish_object(parent, content['status'])
             if 'data' in content:
-                parent = '/'.join(remote_content_path.split('/')[:-1])
                 update_object(parent, {"data": content["data"]})
     else:
         if args.contents and '.' not in file_id:
@@ -104,6 +110,8 @@ def create_file(remote_content_path, local_content_path):
                     'id': file_id,
                     'data': content['data'],
                 })
+                if 'status' in content:
+                    publish_object(remote_content_path, content['status'])
         else:
             save_object(remote_content_path, {
                 '@type': 'File',
@@ -115,7 +123,7 @@ def upload_folder(path, root):
     create_folder(path)
     local_path = os.path.join(root, path)
     for content in os.listdir(local_path):
-        if content in IGNORE:
+        if content in IGNORE or content.startswith('.'):
             continue
         local_content_path = os.path.join(local_path, content)
         remote_content_path = os.path.join(path, content)
@@ -157,8 +165,9 @@ def download_folder_properties(path, root):
         f.write(res.content)
 
 def download_folder(path, root):
-    if not os.path.exists(path):
-        os.makedirs(path)
+    root_folder = os.path.join(root, path)
+    if not os.path.exists(root_folder):
+        os.makedirs(root_folder)
     download_folder_properties(path, root)
     res = requests.get(
         get_url(path) + "/@allfiles",
