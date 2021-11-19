@@ -47,7 +47,7 @@
         } else if (type === 'Content' || type === 'Directory') {
             _content = JSON.stringify(obj.data || {});
             contentPath = currentPath;
-            type === 'Directory' && obj.data && obj.data.hasGit;
+            hasGit = type === 'Directory' && obj.data && obj.data.hasGit;
         }
     }
     $: hasError = !!error || warnings.length > 0;
