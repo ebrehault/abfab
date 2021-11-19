@@ -29,12 +29,14 @@
 </svelte:head>
 <main>
     <img src="/~/abfab/abfab.svg" alt="AbFab logo">
-    <AFInput id="username" bind:value={username} label="Username"></AFInput>
-    <AFInput id="password" type="password" bind:value={password} label="Password"></AFInput>
-    <div class="message">
-        {error}
-    </div>
-    <AFButton kind="primary" on:click={login}>Login</AFButton>
+    <form on:submit|preventDefault={login}>
+        <AFInput id="username" bind:value={username} label="Username"></AFInput>
+        <AFInput id="password" type="password" bind:value={password} label="Password"></AFInput>
+        <div class="message">
+            {error}
+        </div>
+    	<AFButton kind="primary" type="submit">Login</AFButton>
+    </form>
 </main>
 <style>
     main {
@@ -45,6 +47,9 @@
         max-height: 100vh;
         padding: 2em;
         margin: 0 auto;
+    }
+    form {
+        display: contents;
     }
     .message {
         padding-bottom: 1em;

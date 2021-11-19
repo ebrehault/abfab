@@ -73,7 +73,7 @@ export const getTreeItem = (path, tree) => {
     if (exactMatch) {
         return exactMatch;
     } else {
-        const match = tree.find((item) => path.startsWith(item.path));
+        const match = tree.find((item) => path.startsWith(item.path.endsWith('/') ? item.path : `${item.path}/`));
         if (!match) {
             return match;
         } else {

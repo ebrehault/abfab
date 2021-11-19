@@ -4,14 +4,18 @@
     import AFIcon from '/~/abfab/ui/icon.svelte';
     import AFButton from '/~/abfab/ui/button.svelte';
     import AFDropdown from '/~/abfab/ui/dropdown.svelte';
+    import AFInput from '/~/abfab/ui/input.svelte';
     import { onMount } from 'svelte';
 
     export let componentPath;
     export let contentPath;
+    export let hasGit;
     let iframeSnippet = '';
     let elementSnippet = '';
     let link = '';
     let status;
+    let branch = '';
+    let commit = '';
 
     onMount(async () => {
         if (!!contentPath) {
@@ -45,6 +49,21 @@
         await Content.share(contentPath, setting);
         await getStatus();
     }
+
+    async function push() {
+        const id = contentPath.split('/').pop();
+        await fetch(`/_utils/push/${id}/${branch}`, {
+            method: 'POST', body: JSON.stringify({commit}),
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+        });
+    }
+    async function pull() {
+        const id = contentPath.split('/').pop();
+        await fetch(`/_utils/pull/${id}/${branch}`, { method: 'POST'});
+    }
 </script>
 <section>
     <h3>Publish</h3>
@@ -69,11 +88,40 @@
     <AFTextarea label="Web component snippet" bind:value={elementSnippet} />
     <AFTextarea label="iframe snippet" bind:value={iframeSnippet} />
     {/if}
+    {#if hasGit}
+    <h3>Git sync</h3>
+    <AFInput bind:value={branch} label="Branch" placeholder="my-branch"></AFInput>
+    <div class="sync-action">
+        <div>
+            <h4>Push</h4>
+            <p>
+                All the changes made in this directory will be pushed to the <code>{branch}</code> branch on your Git repository.
+            </p>
+            <AFInput bind:value={commit} label="Commit message" placeholder="Short description of the changes" disabled={!branch}></AFInput>
+        </div>
+        <div>
+            <AFButton kind="primary" icon="arrow-up" on:click={push} disabled={!branch}>Push</AFButton>
+        </div>
+    </div>
+    <div class="sync-action">
+        <div>
+            <h4>Pull</h4>
+            <p>
+                The current code from <code>{branch}</code> branch on your Git repository will be deployed here.
+                If some changes have been made through this online inerface since the last syncing,
+                they will be pushed to the <code>abfab-online-backup</code> branch before any code is deployed, so nothing gets lost by mistake.
+            </p>
+        </div>
+        <div>
+            <AFButton kind="primary" icon="arrow-down" on:click={pull} disabled={!branch}>Pull</AFButton>
+        </div>
+    </div>
+    {/if}
 </section>
 <style>
     section {
-        margin-left: 1em;
-        width: calc(50vw - 5em);
+        margin: 0 1em;
+        width: calc(50vw - 7em);
     }
     :global(textarea) {
         font-family: monospace;
@@ -82,5 +130,8 @@
         display: flex;
         flex-direction: column;
         padding: 0.5em;
+    }
+    .sync-action {
+        display: flex;
     }
 </style>

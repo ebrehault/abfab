@@ -24,6 +24,7 @@
     let viewer;
     let codemirror;
     let mode = 'edit';
+    let hasGit = false;
     const subscriptions = [];
     subscriptions.push(derived(AbFabStore, (state) => state.query)
         .subscribe(query => mode = (new URLSearchParams(query)).get('mode') || 'edit'));
@@ -46,6 +47,7 @@
         } else if (type === 'Content' || type === 'Directory') {
             _content = JSON.stringify(obj.data || {});
             contentPath = currentPath;
+            type === 'Directory' && obj.data && obj.data.hasGit;
         }
     }
     $: hasError = !!error || warnings.length > 0;
@@ -179,7 +181,7 @@
     <Viewer bind:this={viewer} componentPath={viewComponent} {contentPath}></Viewer>
     {/if}
     {#if properties}
-    <Properties componentPath={viewComponent} {contentPath}></Properties>
+    <Properties componentPath={viewComponent} {contentPath} {hasGit}></Properties>
     {/if}
 </main>
 <style>

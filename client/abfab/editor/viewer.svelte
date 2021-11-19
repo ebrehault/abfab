@@ -44,8 +44,8 @@
 </section>
 <style>
 section {
-    margin-left: 1em;
-	width: calc(50vw - 5em);
+    margin: 0 1em;
+	width: calc(50vw - 7em);
 }
 iframe {
 	width: 100%;
