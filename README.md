@@ -19,20 +19,10 @@ AbFab is an all-in-one platform allowing to develop simple frontend components t
 AbFab is a web application publication environment. It provides the essential services any web application needs:
 
 -   a secured and fast backend storage,
--   a minimalistic yet powerful frontend framework (Svelte),
+-   a minimalistic yet powerful frontend component framework (Svelte),
 -   a light JavaScript runtime offering routing and backend connectivity.
 
 Components are written in Svelte, they are compiled in the browser (you do not need a local NPM), stored in the AbFab server, and can be published to any web page as a web component.
-
-## Do you need to learn a new technology?
-
-To develop an AbFab app, you will just need HTML, CSS and (simple) JavaScript.
-
-Svelte could be considered as a templating layer, it is very simple to learn and to use and will not be a blocker.
-
-Regarding backend, deployment and setup is entirely performed using Docker. No Docker knowledge is needed.
-
-Components can be developed directly from the AbFab online interface, or locally with your favorite IDE and deployed to the AbFab server by pushing the code to GitHub. (Vice-versa, changes done through the online interface can be pushed to your repository whenever needed).
 
 ## Simple things must be simple
 
@@ -40,7 +30,17 @@ Components can be developed directly from the AbFab online interface, or locally
 
 **Code-splitting**: Each component is compiled automatically and independently, and each page of your app will load only the needed components.
 
-**Client-side navigation**: Navigation from one page to another is performed by loading only the missing data and the application renders it on the client-side, so the application is always fast.
+**Client-side navigation**: Navigation from one page to another is performed by loading only the missing data and the application renders it on the client-side, so the application is always fast. It behaves as a Single-Page-App, but it's not.
+
+**Component approach**: Components are an efficient way to structure an app (HTML is built that way actually). You should be able use them outside the SPA pattern.
+
+## Do you need to learn a new technology? NO :)
+
+**LOW CODE**: To develop an AbFab app, you will just need HTML, CSS and (simple) JavaScript. Svelte could be considered as a templating layer, it is very simple to learn and to use and will not be a blocker.
+
+**LOW DEPLOYMENT**: AbFab is not just a frontend solution, it comes with a backend and all the elements needed to move everything to production, including a proper Nginx configuration. Deployment and setup is entirely performed using Docker. No Docker knowledge is needed.
+
+**LOW BUILD**: Components can be developed directly from the AbFab online interface, or locally with your favorite IDE and deployed to the AbFab server by pushing the code to GitHub. (Vice-versa, changes done through the online interface can be pushed to your repository whenever needed). No NPM, no bundling.
 
 ## Quickstart
 
