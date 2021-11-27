@@ -4,6 +4,7 @@ import { compile } from '/~/libs/svelte/compiler.mjs';
 
 const ABFAB_ROOT = '/~';
 const SVELTE_RE = new RegExp(/from "(.+\/svelte(\/\w+){0,1})";/g);
+const LIB_IMPORTS = new RegExp(/import (.+) from ['"]((?![.\/]|https?:\/\/).+)['"];/g);
 
 export const EditorStore = writable({
     tree: [],
@@ -145,7 +146,10 @@ export async function saveFile(filepath, type, content) {
         await _saveFile(filepath, type, content);
         if (isSvelte) {
             const jsFilePath = filepath + '.js';
-            await _saveFile(jsFilePath, 'File', js.code.replace(SVELTE_RE, 'from "$1/index.mjs";'));
+            const code = js.code
+                .replace(SVELTE_RE, 'from "$1/index.mjs";')
+                .replace(LIB_IMPORTS, 'import $1 from "/~/libs/$2";');
+            await _saveFile(jsFilePath, 'File', code);
         }
     }
     return { error, warnings: warnings || [] };
