@@ -26,7 +26,7 @@ services:
     abfab-utils:
         container_name: abfab-utils
         image: ebrehault/abfab-utils:latest
-        command: sh utils/init.sh abfab ${PASSWORD}
+        command: sh utils/init.sh ${PASSWORD}
         volumes:
             - ./src:/app/src
             - .env:/app/utils/.env

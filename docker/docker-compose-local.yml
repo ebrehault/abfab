@@ -31,7 +31,7 @@ services:
         build:
             context: ..
             dockerfile: docker/Dockerfile-utils
-        command: sh utils/init.sh abfab root
+        command: sh utils/init.sh root
         volumes:
             - ../tmp:/app/src
             - .env:/app/utils/.env

@@ -212,11 +212,12 @@ parser.add_argument('--local', action="store_true",
 args = parser.parse_args()
 auth = args.auth or (args.local and 'root:root')
 AUTH = tuple(auth.split(':'))
+root = args.root or '.'
 if args.command == 'up':
-    folder_path = os.path.join(args.root or '.', args.path)
+    folder_path = os.path.join(root, args.path)
     compile_svelte(folder_path)
     if not args.svelteOnly:
         delete_remote(args.path)
-    upload_folder(args.path, args.root)
+    upload_folder(args.path, root)
 else:
-    download_folder(args.path, args.root)
+    download_folder(args.path, root)
