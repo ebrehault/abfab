@@ -1,5 +1,5 @@
 <script>
-    import { getTreeItem, updateTreeItem } from './editor.js';
+    import { getTreeItem, loadTree, updateTreeItem } from './editor.js';
     import AFIcon from '/~/abfab/ui/icon.svelte';
     export let item;
 
@@ -13,6 +13,9 @@
             updateTreeItem({...currentSelected, selected: false});
         }
         updateTreeItem({...item, selected: true});
+    }
+    if (item.children && item.children.some(i => i.notLoaded)) {
+        loadTree(item.path);
     }
 </script>
 {#if item.type === 'Directory' }

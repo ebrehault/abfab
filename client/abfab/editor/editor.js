@@ -8,27 +8,22 @@ const LIB_IMPORTS = new RegExp(/import (.+) from ['"]((?![.\/]|https?:\/\/).+)['
 
 export const EditorStore = writable({
     tree: [],
-    dirs: [],
     showNavigation: true,
 });
 
-export const loadTree = async () => {
-    const response = await API.get('/~/@tree');
+export const loadTree = async (parent) => {
+    const response = await API.get(parent ? `${parent}/@tree` : `/~/@tree`);
     if (response.ok) {
         const currentLocation = getCorePath(window.location.pathname.replace('/@edit', ''));
         const tree = [
             {
                 type: 'Directory',
-                path: '/',
+                path: parent ? getCorePath(parent) : '/',
                 children: await response.json(),
                 expanded: true,
             },
         ];
-        const dirs = [];
         const mapTree = (item) => {
-            if (item.type === 'Directory') {
-                dirs.push(item.path);
-            }
             const itemPath = getCorePath(item.path);
             return {
                 name: item.path === '/' ? '~' : item.path.split('/').pop(),
@@ -39,10 +34,14 @@ export const loadTree = async () => {
                     : undefined,
                 expanded: currentLocation.startsWith(itemPath),
                 selected: currentLocation === itemPath,
+                notLoaded: item.not_loaded,
             };
         };
-        EditorStore.update((state) => ({ ...state, tree: tree.map(mapTree) }));
-        EditorStore.update((state) => ({ ...state, dirs }));
+        if (!parent) {
+            EditorStore.update((state) => ({ ...state, tree: tree.map(mapTree) }));
+        } else {
+            updateTreeItem(tree.map(mapTree)[0]);
+        }
     }
 };
 
