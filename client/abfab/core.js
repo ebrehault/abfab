@@ -24,7 +24,7 @@ export function navigateTo(path) {
 // like /somepath/<cachekey>/
 const NAV_ROOT = '/~/';
 const PREFIX = NAV_ROOT.split('/')[1];
-const REAL_PATH_RE = new RegExp(`.+/${PREFIX}/(?:[0-9]+/|)(.+)`);
+const REAL_PATH_RE = new RegExp(`.+/${PREFIX}/(.+)`);
 export function getRealPath(path) {
     return path.startsWith('/') && !path.startsWith(`/${PREFIX}/`)
         ? `/~/${path.slice(1)}`
@@ -33,7 +33,7 @@ export function getRealPath(path) {
         : path;
 }
 
-const CORE_PATH_RE = new RegExp('/~/(?:[0-9]+/|)(.+)');
+const CORE_PATH_RE = new RegExp('/~/(.+)');
 export function getCorePath(path) {
     return path.replace(CORE_PATH_RE, '/$1');
 }

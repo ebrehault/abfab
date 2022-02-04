@@ -58,7 +58,7 @@ async def view_source(context, request, content_type=None):
     field = IAttachment["file"].bind(behavior)
     adapter = get_multi_adapter((context, request, field), IFileManager)
     last_change = await get_last_modified()
-    return await adapter.download(disposition="inline", content_type=content_type, extra_headers={'X-LastFileChange': last_change})
+    return await adapter.download(disposition="inline", content_type=content_type, extra_headers={'ETag': last_change})
 
 async def wrap_component(request, js_component, path_to_content, type='json'):
     get_content = ""
@@ -94,7 +94,7 @@ try {{
         content=body,
         status=200,
         headers={
-            'X-LastFileChange': last_change,
+            'ETag': last_change,
         }
     )
 
@@ -265,3 +265,14 @@ async def get_basic(context, request):
 async def get_default(context, request):
     get = DefaultGET(context, request)
     return await get()
+
+@configure.service(context=IFile, method="HEAD", permission="guillotina.Public", allow_access=True)
+async def default_head(context, request):
+    last_change = await get_last_modified()
+    return Response(
+        content={},
+        status=200,
+        headers={
+            'ETag': last_change,
+        }
+    )
