@@ -47,7 +47,7 @@ JWT_SECRET=secret-3
 Modify `nginx.conf` and do the following changes:
 
 -   set the `server_name` to the domain name of your website
--   change the root location (`somepath` in the example) in 3 places (in the `location` , `rewrite` and `sub_filter`). `/` is a valid value if you want to serve AbFab on your domain root.
+-   change the root location (`somepath` in the example) in 5 places (in the `location` , `error_page`, `rewrite`, `proxy_redirect` and `sub_filter`). `/` is a valid value if you want to serve AbFab on your domain root.
 
 ### SSL certificate
 

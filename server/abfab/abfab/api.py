@@ -110,7 +110,7 @@ async def get_file(context, request):
     return await view_source(context, request)
 
 async def get_index(context, request):
-    path = context.id + '/'
+    path = get_content_path(context) + '/'
     entrypoint = context.module or context.main
     if entrypoint and entrypoint.startswith('./'):
         entrypoint = entrypoint[2:]
